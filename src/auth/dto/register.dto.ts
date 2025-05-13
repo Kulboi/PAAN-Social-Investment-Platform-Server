@@ -5,10 +5,4 @@ export class RegisterDto {
   @IsNotEmpty() last_name: string;
   @IsEmail() email: string;
   @MinLength(6) password: string;
-  @IsNotEmpty() phone_number: string;
-  @IsNotEmpty() address: string;
-  @IsNotEmpty() lga: string;
-  @IsNotEmpty() state: string;
-  @IsNotEmpty() nin: string;
-  @IsNotEmpty() bvn: string;
 }

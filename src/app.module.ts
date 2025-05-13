@@ -19,7 +19,7 @@ import { AuthModule } from "./auth/auth.module";
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
+        synchronize: config.get('NODE_ENV') === 'development' ? true : false,
       }),
       inject: [ConfigService],
     }),

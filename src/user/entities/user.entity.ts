@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+
 import { Credential } from './credential.entity';
 
 @Entity()
@@ -19,7 +20,7 @@ export class User {
   password: string;
 
   @Column()
-  phone_number: string;
+  phone: string;
 
   @Column()
   address: string;
