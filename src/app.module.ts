@@ -23,7 +23,7 @@ import { AuthModule } from "./auth/auth.module";
       }),
       inject: [ConfigService],
     }),
-    UserModule,
+    // UserModule,
     AuthModule
   ],
 })
