@@ -9,14 +9,8 @@ import { RegisterDto } from './dto/register.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get()
-  getHello() {
-    return { message: 'Hello API' };
-  }
-
   @Post('register')
   async register(@Body() dto: RegisterDto): Promise<any> {
-    console.log('Validated Data:', dto);
     return await this.authService.register(dto);
   }
 }

@@ -1,10 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 
 import { Credential } from './credential.entity';
+import { Verification } from '../../auth/entities/verification.entity';
 
-@Entity()
+@Entity({ name: 'users' })
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column()
@@ -19,20 +20,23 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column({ nullable: true })
   phone: string;
 
-  @Column()
+  @Column({ nullable: true })
   address: string;
 
-  @Column()
+  @Column({ nullable: true })
   lga: string;
 
-  @Column()
+  @Column({ nullable: true })
   state: string;
 
   @Column({ default: false })
   is_verified: boolean;
+
+  @OneToMany(() => Verification, verification => verification.user)
+  verifications: Verification[];
 
   @OneToOne(() => Credential, { cascade: true })
   @JoinColumn()
