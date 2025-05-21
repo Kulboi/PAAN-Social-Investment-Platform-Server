@@ -33,17 +33,22 @@ export class AuthService {
     const userExists = await this.userRepo.findOneBy({ email: dto.email });
     if (userExists) throw new ConflictException('Email already exists');
 
+    // hash password
     const hashed = await bcrypt.hash(dto.password, 10);
     const user = this.userRepo.create({
       ...dto,
       password: hashed,
+      is_verified: false,
     });
 
+    // save user
     await this.userRepo.save(user);
 
+    // generate otp
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
+    // save verification
     const verification = this.verificationRepo.create({
       user,
       otp,
@@ -52,6 +57,41 @@ export class AuthService {
     await this.verificationRepo.save(verification);
     await this.mailerService.sendOTP(user.email, otp);
 
-    return { message: 'User registered successfully' };
+    return { message: 'User registered successfully and OTP sent' };
+  }
+
+  async resendOTP(email: string) {
+    const user = await this.userRepo.findOneBy({ email });
+    if (!user) throw new NotFoundException('User not found');
+
+    const verification = await this.verificationRepo.findOneBy({ user });
+    if (!verification) throw new NotFoundException('Verification not found');
+
+    const otp = generateOTP();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+    verification.otp = otp;
+    verification.expiresAt = expiresAt;
+    await this.verificationRepo.save(verification);
+    await this.mailerService.sendOTP(user.email, otp);
+
+    return { message: 'OTP resent successfully' };
+  }
+
+  async verifyUser(email: string, otp: string) {
+    const user = await this.userRepo.findOneBy({ email });
+    if (!user) throw new NotFoundException('User not found');
+
+    const verification = await this.verificationRepo.findOneBy({ user });
+    if (!verification) throw new NotFoundException('Verification not found');
+
+    if (verification.otp !== otp) throw new UnauthorizedException('Invalid OTP');
+
+    if (verification.expiresAt < new Date()) throw new UnauthorizedException('OTP expired');
+
+    user.is_verified = true;
+    await this.userRepo.save(user);
+
+    return { message: 'User verified successfully' };
   }
 }
