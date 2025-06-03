@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,20 +19,23 @@ import { Verification } from './entities/verification.entity';
 
 import { generateOTP } from '../common/utils/functions';
 
-import { 
-  RegisterDto, 
+import {
+  RegisterDto,
   LoginDto,
   ForgotPasswordDto,
-  ResetPasswordDto 
+  ResetPasswordDto,
 } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
   private mockTokens = new Map<string, string>();
+  private jwtExpirationTime = '1h';
+  private refreshTokenExpirationTime = '1d';
 
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
-    @InjectRepository(Verification) private readonly verificationRepo: Repository<Verification>,
+    @InjectRepository(Verification)
+    private readonly verificationRepo: Repository<Verification>,
     // @InjectRepository(Credential) private credRepo: Repository<Credential>,
     private readonly mailerService: MailerService,
     private jwtService: JwtService,
@@ -89,9 +98,11 @@ export class AuthService {
     const verification = await this.verificationRepo.findOneBy({ user });
     if (!verification) throw new NotFoundException('Verification not found');
 
-    if (verification.otp !== otp) throw new UnauthorizedException('Invalid OTP');
+    if (verification.otp !== otp)
+      throw new UnauthorizedException('Invalid OTP');
 
-    if (verification.expiresAt < new Date()) throw new UnauthorizedException('OTP expired');
+    if (verification.expiresAt < new Date())
+      throw new UnauthorizedException('OTP expired');
 
     user.is_verified = true;
     await this.userRepo.save(user);
@@ -106,12 +117,53 @@ export class AuthService {
     }
 
     const payload = { sub: user.id, email: user.email };
-    const token = this.jwtService.sign(payload, { 
-      expiresIn: '1h',
-      secret: process.env.JWT_SECRET
+    const token = this.jwtService.sign(payload, {
+      expiresIn: this.jwtExpirationTime,
+      secret: process.env.JWT_SECRET,
     });
+    const refreshToken = this.jwtService.sign(
+      { sub: user.id },
+      {
+        secret: process.env.REFRESH_TOKEN_SECRET,
+        expiresIn: this.refreshTokenExpirationTime,
+      },
+    );
+    const hashedRt = await bcrypt.hash(refreshToken, 10);
+    await this.userRepo.update(user.id, { hashedRt });
 
-    return { access_token: token };
+    return {
+      access_token: token,
+      refresh_token: refreshToken,
+    };
+  }
+
+  async refreshTokens(userId: number, refreshToken: string) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new ForbiddenException('Access Denied');
+    
+    const rtMatches = await bcrypt.compare(refreshToken, user.hashedRt);
+    if (!rtMatches) throw new ForbiddenException('Invalid Refresh Token');
+
+    const newAccessToken = this.jwtService.sign({ sub: user.id },
+      { 
+        expiresIn: this.jwtExpirationTime, 
+        secret: process.env.JWT_SECRET 
+      },
+    );
+    const newRefreshToken = this.jwtService.sign({ sub: user.id },
+      { 
+        secret: process.env.REFRESH_TOKEN_SECRET, 
+        expiresIn: this.refreshTokenExpirationTime 
+      },
+    );
+
+    const hashedRt = await bcrypt.hash(newRefreshToken, 10);
+    await this.userRepo.update(user.id, { hashedRt });
+
+    return { 
+      access_token: newAccessToken, 
+      refresh_token: newRefreshToken 
+    };
   }
 
   async forgotPassword(dto: ForgotPasswordDto) {

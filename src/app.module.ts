@@ -2,7 +2,9 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+// Strategies
 import { JwtStrategy } from './common/strategies/jwt.strategy';
+import { RtStrategy } from './common/strategies/rt.strategy';
 
 // Modules
 import { UserModule } from "./user/user.module";
@@ -22,13 +24,13 @@ import { AuthModule } from "./auth/auth.module";
         database: config.get('DB_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: config.get('NODE_ENV') === 'development' ? true : false,
-        providers: [JwtStrategy],
       }),
       inject: [ConfigService],
     }),
     // UserModule,
     AuthModule
   ],
+  providers: [JwtStrategy, RtStrategy],
 })
 
 export class AppModule {}

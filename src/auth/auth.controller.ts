@@ -1,7 +1,9 @@
-import { Controller, Post, Get, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
+
+import { AuthGuard } from '@nestjs/passport';
 
 import { RegisterDto, LoginDto, ForgotPasswordDto, ResetPasswordDto } from './dto/auth.dto';
 import { ResendOTPDto, UserVerificationDto } from './dto/user-verification-dto';
@@ -29,6 +31,14 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Post('refresh-token')
+  @UseGuards(AuthGuard('jwt-refresh'))
+  refreshToken(@Req() req) {
+    console.log(req)
+    const { userId, refreshToken } = req.user;
+    return this.authService.refreshTokens(userId, refreshToken);
   }
 
   @Post('forgot-password')

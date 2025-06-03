@@ -5,6 +5,10 @@ import { Verification } from '../../auth/entities/verification.entity';
 
 @Entity({ name: 'users' })
 export class User {
+  static getPasswordNullable(authType: 'social' | 'email') {
+    return authType === 'social';
+  }
+
   @PrimaryGeneratedColumn('uuid')
   id: number;
 
@@ -17,7 +21,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: User.getPasswordNullable('email') })
   password: string;
 
   @Column({ nullable: true })
@@ -41,4 +45,10 @@ export class User {
   @OneToOne(() => Credential, { cascade: true })
   @JoinColumn()
   credentials: Credential;
+
+  @Column({ nullable: false, default: 'email' })
+  authType: 'social' | 'email';
+
+  @Column({ nullable: true })
+  hashedRt: string;
 }
