@@ -3,7 +3,7 @@ import { Injectable, NotFoundException, UnauthorizedException, ConflictException
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-// import { JwtService } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 // import { Credential } from '../user/entities/credential.entity';
 
 import { MailerService } from '../common/utils/mailer.service';
@@ -28,8 +28,8 @@ export class AuthService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(Verification) private readonly verificationRepo: Repository<Verification>,
     // @InjectRepository(Credential) private credRepo: Repository<Credential>,
-    private readonly mailerService: MailerService
-    // private jwtService: JwtService,
+    private readonly mailerService: MailerService,
+    private jwtService: JwtService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -99,8 +99,19 @@ export class AuthService {
     return { message: 'User verified successfully' };
   }
 
-  async login() {
-    return { message: 'User logged in successfully' };
+  async login(dto: LoginDto) {
+    const user = await this.userRepo.findOne({ where: { email: dto.email } });
+    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    const payload = { sub: user.id, email: user.email };
+    const token = this.jwtService.sign(payload, { 
+      expiresIn: '1h',
+      secret: process.env.JWT_SECRET
+    });
+
+    return { access_token: token };
   }
 
   async forgotPassword(dto: ForgotPasswordDto) {

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { MailerService } from 'src/common/utils/mailer.service';
 
@@ -12,6 +13,6 @@ import { Verification } from './entities/verification.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([User, Verification])],
   controllers: [AuthController],
-  providers: [AuthService, MailerService],
+  providers: [AuthService, MailerService, JwtService],
 })
 export class AuthModule {}
