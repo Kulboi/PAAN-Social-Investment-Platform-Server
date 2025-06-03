@@ -5,12 +5,10 @@ import {
   ConflictException,
   ForbiddenException,
 } from '@nestjs/common';
-
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-// import { Credential } from '../user/entities/credential.entity';
 
 import { MailerService } from '../common/utils/mailer.service';
 
@@ -34,9 +32,7 @@ export class AuthService {
 
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
-    @InjectRepository(Verification)
-    private readonly verificationRepo: Repository<Verification>,
-    // @InjectRepository(Credential) private credRepo: Repository<Credential>,
+    @InjectRepository(Verification) private readonly verificationRepo: Repository<Verification>,
     private readonly mailerService: MailerService,
     private jwtService: JwtService,
   ) {}
@@ -140,7 +136,7 @@ export class AuthService {
   async refreshTokens(userId: number, refreshToken: string) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new ForbiddenException('Access Denied');
-    
+
     const rtMatches = await bcrypt.compare(refreshToken, user.hashedRt);
     if (!rtMatches) throw new ForbiddenException('Invalid Refresh Token');
 
