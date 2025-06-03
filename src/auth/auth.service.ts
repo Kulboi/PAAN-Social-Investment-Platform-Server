@@ -1,13 +1,10 @@
 import { Injectable, NotFoundException, UnauthorizedException, ConflictException } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
-// import { LoginDto } from './dto/login.dto';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 // import { JwtService } from '@nestjs/jwt';
 // import { Credential } from '../user/entities/credential.entity';
-// import { ForgotPasswordDto } from './dto/forgot-password.dto';
-// import { ResetPasswordDto } from './dto/reset-password.dto';
 
 import { MailerService } from '../common/utils/mailer.service';
 
@@ -16,9 +13,16 @@ import { Verification } from './entities/verification.entity';
 
 import { generateOTP } from '../common/utils/functions';
 
+import { 
+  RegisterDto, 
+  LoginDto,
+  ForgotPasswordDto,
+  ResetPasswordDto 
+} from './dto/auth.dto';
+
 @Injectable()
 export class AuthService {
-  // private mockTokens = new Map<string, string>();
+  private mockTokens = new Map<string, string>();
 
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
@@ -93,5 +97,33 @@ export class AuthService {
     await this.userRepo.save(user);
 
     return { message: 'User verified successfully' };
+  }
+
+  async login() {
+    return { message: 'User logged in successfully' };
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await this.userRepo.findOne({ where: { email: dto.email } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const token = Math.random().toString(36).substring(0, 6);
+    this.mockTokens.set(token, user.email);
+    await this.mailerService.sendOTP(user.email, token);
+
+    return { message: 'Reset token sent to email' };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const email = this.mockTokens.get(dto.token);
+    if (!email) throw new NotFoundException('Invalid or expired token');
+
+    const user = await this.userRepo.findOne({ where: { email } });
+    user.password = await bcrypt.hash(dto.newPassword, 10);
+    await this.userRepo.save(user);
+
+    this.mockTokens.delete(dto.token);
+
+    return { message: 'Password reset successful' };
   }
 }

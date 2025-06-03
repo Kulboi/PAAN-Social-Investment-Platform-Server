@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 
-import { RegisterDto } from './dto/register.dto';
+import { RegisterDto, ForgotPasswordDto, ResetPasswordDto } from './dto/auth.dto';
 import { ResendOTPDto, UserVerificationDto } from './dto/user-verification-dto';
 
 @ApiTags('Authentication')
@@ -24,5 +24,15 @@ export class AuthController {
   @Post('user-verify')
   async verifyUser(@Body() payload: UserVerificationDto): Promise<any> {
     return await this.authService.verifyUser(payload.email, payload.otp);
+  }
+
+  @Post('forgot-password')
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Post('reset-password')
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
   }
 }
