@@ -1,7 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 
 import { Credential } from './credential.entity';
 import { Verification } from '../../auth/entities/verification.entity';
+import { Wallet } from '../../wallet/entities/wallet.entity';
+
+enum AuthType {
+  SOCIAL = 'SOCIAL',
+  EMAIL = 'EMAIL',
+}
 
 @Entity({ name: 'users' })
 export class User {
@@ -39,16 +52,25 @@ export class User {
   @Column({ default: false })
   is_verified: boolean;
 
-  @OneToMany(() => Verification, verification => verification.user)
+  @OneToMany(() => Verification, (verification) => verification.user)
   verifications: Verification[];
 
   @OneToOne(() => Credential, { cascade: true })
   @JoinColumn()
   credentials: Credential;
 
-  @Column({ nullable: false, default: 'email' })
-  authType: 'social' | 'email';
+  @Column({
+    nullable: false,
+    type: 'enum',
+    enum: AuthType,
+    default: 'EMAIL',
+  })
+  authType: AuthType;
 
   @Column({ nullable: true })
   hashedRt: string;
+
+  @OneToOne(() => Wallet, (wallet) => wallet.user, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  wallet: Wallet;
 }

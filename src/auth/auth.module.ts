@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
 import { JwtService } from '@nestjs/jwt';
+
 import { AuthService } from './auth.service';
 import { MailerService } from 'src/common/utils/mailer.service';
 
