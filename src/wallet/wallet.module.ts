@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { HttpModule } from '@nestjs/axios';
 
 import { WalletController } from './wallet.controller';
 
@@ -9,7 +10,7 @@ import { Wallet } from './entities/wallet.entity';
 import { WalletTransactions } from './entities/transaction.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Wallet, WalletTransactions])],
+  imports: [TypeOrmModule.forFeature([Wallet, WalletTransactions]), HttpModule],
   controllers: [WalletController],
   providers: [WalletService]
 })
