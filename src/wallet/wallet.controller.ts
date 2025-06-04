@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
+import { 
+  Controller, 
+  Get, 
+  Post, 
+  Body, 
+  UseGuards, 
+  Request,
+  Query,
+} from '@nestjs/common';
 
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
@@ -22,8 +30,8 @@ export class WalletController {
   }
 
   @Get('transactions')
-  getTransactions(@Request() req) {
-    return this.walletService.getTransactions(req.user.id);
+  getTransactions(@Request() req, @Query('page') page = 1, @Query('limit') limit = 10) {
+    return this.walletService.getTransactions(req.user.id, Number(page), Number(limit));
   }
 
   @Post('deposit')
