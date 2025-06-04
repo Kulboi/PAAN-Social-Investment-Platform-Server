@@ -11,6 +11,11 @@ import { DepositDto, WithdrawDto } from './dto/wallet.dto';
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
+  @Get('create')
+  createWallet(@Request() req) {
+    return this.walletService.createWallet(req.user.id);
+  }
+
   @Get('balance')
   getBalance(@Request() req) {
     return this.walletService.getBalance(req.user.id);

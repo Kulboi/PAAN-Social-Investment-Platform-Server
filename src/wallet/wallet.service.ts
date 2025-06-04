@@ -16,6 +16,11 @@ export class WalletService {
     private transactionRepo: Repository<WalletTransactions>
   ) {}
 
+  async createWallet(userId: number) {
+    const wallet = this.walletRepo.create({ user: { id: userId } });
+    return this.walletRepo.save(wallet);
+  }
+
   async getBalance(userId: number) {
     const wallet = await this.walletRepo.findOne({ where: { user: { id: userId } } });
     if (!wallet) throw new NotFoundException('Wallet not found');
