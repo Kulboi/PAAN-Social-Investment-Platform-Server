@@ -12,7 +12,7 @@ export class OtpCleanupService {
     private readonly verificationRepo: Repository<Verification>
   ) {}
 
-  @Cron('0 */30 * * * *') // Every 30 minutes
+  @Cron('0 */60 * * * *') // Every 60 minutes
   async handleCleanup() {
     const now = new Date();
     await this.verificationRepo.delete({ expiresAt: LessThan(now) });

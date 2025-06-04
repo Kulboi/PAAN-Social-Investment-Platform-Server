@@ -10,6 +10,7 @@ import { RtStrategy } from './common/strategies/rt.strategy';
 // Modules
 import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
+import { WalletModule } from './wallet/wallet.module';
 
 @Module({
   imports: [
@@ -29,8 +30,9 @@ import { AuthModule } from "./auth/auth.module";
       }),
       inject: [ConfigService],
     }),
-    // UserModule,
-    AuthModule
+    UserModule,
+    AuthModule,
+    WalletModule,
   ],
   providers: [JwtStrategy, RtStrategy],
 })
