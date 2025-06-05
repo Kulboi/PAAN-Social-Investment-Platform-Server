@@ -6,11 +6,16 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { UserService } from 'src/user/user.service';
+import { FlutterwaveService } from 'src/common/utils/flutterwave.service';
+
 import { Wallet } from './entities/wallet.entity';
 import {
   WalletTransactions,
   TransactionType,
+  TransactionStatus,
 } from './entities/transaction.entity';
+import { User } from '../user/entities/user.entity';
 
 import { DepositDto, WithdrawDto } from './dto/wallet.dto';
 
@@ -19,8 +24,14 @@ export class WalletService {
   constructor(
     @InjectRepository(Wallet)
     private walletRepo: Repository<Wallet>,
+
     @InjectRepository(WalletTransactions)
     private transactionRepo: Repository<WalletTransactions>,
+
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
+
+    private flutterwaveService: FlutterwaveService,
   ) {}
 
   async createWallet(userId: number) {
@@ -55,6 +66,50 @@ export class WalletService {
       page,
       limit,
     };
+  }
+
+  async initiateDeposit(userId: number, amount: number) {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const flutterwaveRes = await this.flutterwaveService.initiateDeposit(
+      user.email,
+      amount,
+    );
+    return flutterwaveRes;
+  }
+
+  async handleDepositWebhook(data: any) {
+    const tx = await this.flutterwaveService.verifyTransaction(data.id);
+
+    const user = await this.userRepo.findOne({
+      where: { email: tx.data.customer.email },
+      relations: ['wallet'],
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    if (tx.status === 'success') {
+      user.wallet.balance += Number(tx.data.amount);
+      await this.walletRepo.save(user.wallet);
+
+      const transaction = this.transactionRepo.create({
+        wallet: user.wallet,
+        amount: tx.data.amount,
+        type: TransactionType.DEPOSIT,
+        reference: tx.data.tx_ref,
+        status: TransactionStatus.SUCCESS,
+      });
+      await this.transactionRepo.save(transaction);
+    } else {
+      const transaction = this.transactionRepo.create({
+        wallet: user.wallet,
+        amount: tx.data.amount,
+        type: TransactionType.DEPOSIT,
+        reference: tx.data.tx_ref,
+        status: TransactionStatus.FAILED,
+      });
+      await this.transactionRepo.save(transaction);
+    }
   }
 
   async deposit(userId: number, dto: DepositDto) {

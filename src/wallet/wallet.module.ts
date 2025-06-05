@@ -5,13 +5,15 @@ import { HttpModule } from '@nestjs/axios';
 import { WalletController } from './wallet.controller';
 
 import { WalletService } from './wallet.service';
+import { FlutterwaveService } from 'src/common/utils/flutterwave.service';
 
 import { Wallet } from './entities/wallet.entity';
 import { WalletTransactions } from './entities/transaction.entity';
+import { User } from '../user/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Wallet, WalletTransactions]), HttpModule],
+  imports: [TypeOrmModule.forFeature([Wallet, WalletTransactions, User]), HttpModule],
   controllers: [WalletController],
-  providers: [WalletService]
+  providers: [WalletService, FlutterwaveService]
 })
 export class WalletModule {}

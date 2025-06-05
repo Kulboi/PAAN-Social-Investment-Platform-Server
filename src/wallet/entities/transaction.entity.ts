@@ -6,6 +6,12 @@ export enum TransactionType {
   WITHDRAWAL = 'WITHDRAWAL',
 }
 
+export enum TransactionStatus {
+  PENDING = 'PENDING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+}
+
 @Entity()
 export class WalletTransactions {
   @PrimaryGeneratedColumn()
@@ -19,6 +25,12 @@ export class WalletTransactions {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column()
+  reference: string;
+
+  @Column({ type: 'enum', enum: TransactionStatus })
+  status: TransactionStatus;
 
   @ManyToOne(() => Wallet, wallet => wallet.transactions, { onDelete: 'CASCADE' })
   wallet: Wallet;

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RawBodyGuard } from '../common/guards/raw-body.guard';
 
 import { WalletService } from './wallet.service';
 
@@ -35,8 +36,15 @@ export class WalletController {
   }
 
   @Post('deposit')
-  deposit(@Request() req, @Body() dto: DepositDto) {
-    return this.walletService.deposit(req.user.id, dto);
+  deposit(@Request() req, @Body('amount') dto: DepositDto) {
+    return this.walletService.initiateDeposit(req.user.id, dto.amount);
+  }
+
+  @Post('deposit-webhook')
+  @UseGuards(RawBodyGuard) // if verifying signature
+  async handleWebhook(@Body() body: any) {
+    await this.walletService.handleDepositWebhook(body);
+    return { status: 'ok' };
   }
 
   @Post('withdraw')

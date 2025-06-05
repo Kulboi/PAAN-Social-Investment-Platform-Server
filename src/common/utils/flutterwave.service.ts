@@ -22,6 +22,7 @@ export class FlutterwaveService {
         },
       }
     ).toPromise();
+    
     return response.data;
   }
 
@@ -31,6 +32,7 @@ export class FlutterwaveService {
         Authorization: `Bearer ${this.configService.get('FLUTTERWAVE_SECRET_KEY')}`,
       },
     }).toPromise();
+    
     return response.data;
   }
 }
