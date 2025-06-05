@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 
 import { UserService } from 'src/user/user.service';
 import { FlutterwaveService } from 'src/common/utils/flutterwave.service';
+import { WebhookLoggerService } from 'src/common/utils/webhook-logger.service';
 
 import { Wallet } from './entities/wallet.entity';
 import {
@@ -32,6 +33,7 @@ export class WalletService {
     private readonly userRepo: Repository<User>,
 
     private flutterwaveService: FlutterwaveService,
+    private webhookLoggerService: WebhookLoggerService,
   ) {}
 
   async createWallet(userId: number) {
@@ -79,36 +81,27 @@ export class WalletService {
     return flutterwaveRes;
   }
 
-  async handleDepositWebhook(data: any) {
-    const tx = await this.flutterwaveService.verifyTransaction(data.id);
+  async handleDepositWebhook(payload: any) {
+    const reference = payload.data.reference;
+    const status = payload.data.status;
 
-    const user = await this.userRepo.findOne({
-      where: { email: tx.data.customer.email },
+    await this.webhookLoggerService.log('flutterwave', payload);
+
+    const transaction = await this.transactionRepo.findOne({
+      where: { reference },
       relations: ['wallet'],
     });
-    if (!user) throw new NotFoundException('User not found');
+    if (!transaction) return;
 
-    if (tx.status === 'success') {
-      user.wallet.balance += Number(tx.data.amount);
-      await this.walletRepo.save(user.wallet);
+    transaction.status = status;
+    await this.transactionRepo.save(transaction);
 
-      const transaction = this.transactionRepo.create({
-        wallet: user.wallet,
-        amount: tx.data.amount,
-        type: TransactionType.DEPOSIT,
-        reference: tx.data.tx_ref,
-        status: TransactionStatus.SUCCESS,
-      });
-      await this.transactionRepo.save(transaction);
+    if (status !== 'successful') {
+      transaction.wallet.balance += transaction.amount;
+      await this.walletRepo.save(transaction.wallet);
+      // await this.mailerService.sendFailureNotification(transaction.wallet.user.email, reference);
     } else {
-      const transaction = this.transactionRepo.create({
-        wallet: user.wallet,
-        amount: tx.data.amount,
-        type: TransactionType.DEPOSIT,
-        reference: tx.data.tx_ref,
-        status: TransactionStatus.FAILED,
-      });
-      await this.transactionRepo.save(transaction);
+      // await this.mailerService.sendSuccessNotification(transaction.wallet.user.email, reference);
     }
   }
 

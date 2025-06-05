@@ -6,6 +6,7 @@ import { WalletController } from './wallet.controller';
 
 import { WalletService } from './wallet.service';
 import { FlutterwaveService } from 'src/common/utils/flutterwave.service';
+import { WebhookLoggerService } from 'src/common/utils/webhook-logger.service';
 
 import { Wallet } from './entities/wallet.entity';
 import { WalletTransactions } from './entities/transaction.entity';
@@ -14,6 +15,6 @@ import { User } from '../user/entities/user.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Wallet, WalletTransactions, User]), HttpModule],
   controllers: [WalletController],
-  providers: [WalletService, FlutterwaveService]
+  providers: [WalletService, FlutterwaveService, WebhookLoggerService]
 })
 export class WalletModule {}
