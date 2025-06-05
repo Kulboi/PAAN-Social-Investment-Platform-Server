@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 
 import { Credential } from './credential.entity';
+import { BankAccounts } from './bank-accounts.entity';
 import { Verification } from '../../auth/entities/verification.entity';
 import { Wallet } from '../../wallet/entities/wallet.entity';
 
@@ -28,6 +29,9 @@ export class User {
   @Column()
   first_name: string;
 
+  @Column({ nullable: true })
+  middle_name: string;
+
   @Column()
   last_name: string;
 
@@ -38,7 +42,13 @@ export class User {
   password: string;
 
   @Column({ nullable: true })
+  profile_image: string;
+
+  @Column({ nullable: true })
   phone: string;
+
+  @Column({ nullable: true })
+  country: string;
 
   @Column({ nullable: true })
   address: string;
@@ -58,6 +68,9 @@ export class User {
   @OneToOne(() => Credential, { cascade: true })
   @JoinColumn()
   credentials: Credential;
+
+  @OneToMany(() => BankAccounts, (bankAccounts) => bankAccounts.user)
+  bankAccounts: BankAccounts[];
 
   @Column({
     nullable: false,
