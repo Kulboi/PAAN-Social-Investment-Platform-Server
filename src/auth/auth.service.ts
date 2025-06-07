@@ -66,7 +66,14 @@ export class AuthService {
     await this.verificationRepo.save(verification);
     await this.mailerService.sendOTP(user.email, otp);
 
-    return { message: 'User registered successfully and OTP sent' };
+    return { 
+      message: 'User registered successfully and OTP sent',
+      data: { 
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email 
+      }, 
+    };
   }
 
   async resendOTP(email: string) {

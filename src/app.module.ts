@@ -12,6 +12,8 @@ import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
 import { WalletModule } from './wallet/wallet.module';
 
+import { AppController } from './app.controller';
+
 @Module({
   imports: [
     ScheduleModule.forRoot(),
@@ -35,6 +37,7 @@ import { WalletModule } from './wallet/wallet.module';
     WalletModule,
   ],
   providers: [JwtStrategy, RtStrategy],
+  controllers: [AppController],
 })
 
 export class AppModule {}
