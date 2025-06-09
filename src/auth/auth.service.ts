@@ -110,15 +110,10 @@ export class AuthService {
     user.is_verified = true;
     await this.userRepo.save(user);
 
-    return { message: 'User verified successfully' };
+    return this.signInLogic(user);
   }
 
-  async login(dto: LoginDto) {
-    const user = await this.userRepo.findOne({ where: { email: dto.email } });
-    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
+  private async signInLogic(user: User) {
     const payload = { sub: user.id, email: user.email };
     const token = this.jwtService.sign(payload, {
       expiresIn: this.jwtExpirationTime,
@@ -137,7 +132,17 @@ export class AuthService {
     return {
       access_token: token,
       refresh_token: refreshToken,
+      message: 'Login successful',
     };
+  }
+
+  async login(dto: LoginDto) {
+    const user = await this.userRepo.findOne({ where: { email: dto.email } });
+    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    return this.signInLogic(user);
   }
 
   async refreshTokens(userId: number, refreshToken: string) {
