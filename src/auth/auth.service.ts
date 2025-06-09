@@ -23,6 +23,7 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
 } from './dto/auth.dto';
+import { stat } from 'fs';
 
 @Injectable()
 export class AuthService {
@@ -109,8 +110,14 @@ export class AuthService {
 
     user.is_verified = true;
     await this.userRepo.save(user);
+    await this.verificationRepo.remove(verification);
 
-    return this.signInLogic(user);
+    const userLogin = await this.signInLogic(user);
+
+    return { 
+      ...userLogin, 
+      message: 'User verified successfully' 
+    };
   }
 
   private async signInLogic(user: User) {
@@ -142,7 +149,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.signInLogic(user);
+    const userLogin = await this.signInLogic(user);
+    return userLogin;
   }
 
   async refreshTokens(userId: number, refreshToken: string) {
