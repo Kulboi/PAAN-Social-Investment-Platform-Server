@@ -137,8 +137,10 @@ export class AuthService {
     await this.userRepo.update(user.id, { hashedRt });
 
     return {
-      access_token: token,
-      refresh_token: refreshToken,
+      data: { 
+        access_token: token,
+        refresh_token: refreshToken,
+      },
       message: 'Login successful',
     };
   }
