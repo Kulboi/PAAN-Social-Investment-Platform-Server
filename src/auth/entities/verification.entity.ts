@@ -3,7 +3,7 @@ import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class Verification {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column()
