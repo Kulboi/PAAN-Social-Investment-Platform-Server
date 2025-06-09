@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Patch, Body, UseGuards, Req } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
@@ -18,12 +18,12 @@ export class AuthController {
     return await this.authService.register(payload);
   }
 
-  @Post('resend-otp')
+  @Patch('resend-otp')
   async resendOTP(@Body() payload: ResendOTPDto): Promise<any> {
     return await this.authService.resendOTP(payload.email);
   }
 
-  @Post('user-verify')
+  @Post('verify-user')
   async verifyUser(@Body() payload: UserVerificationDto): Promise<any> {
     return await this.authService.verifyUser(payload.email, payload.otp);
   }
