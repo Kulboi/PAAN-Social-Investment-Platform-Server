@@ -51,6 +51,9 @@ export class User {
   country: string;
 
   @Column({ nullable: true })
+  date_of_birth: Date;
+
+  @Column({ nullable: true })
   address: string;
 
   @Column({ nullable: true })
