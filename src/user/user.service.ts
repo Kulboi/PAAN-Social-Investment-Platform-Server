@@ -15,7 +15,28 @@ export class UserService {
     const user = await this.userRepo.findOne({ where: { id }, relations: ['credentials'] });
     if (!user) throw new NotFoundException('User not found');
 
-    return user;
+    return {
+      message: 'User Details',
+      data: {
+        first_name: user.first_name,
+        middle_name: user.middle_name,
+        last_name: user.last_name,
+        email: user.email,
+        address: user.address,
+        lga: user.lga,
+        state: user.state,
+        phone: user.phone,
+        country: user.country,
+        gender: user.gender,
+        date_of_birth: user.date_of_birth,
+        profile_image: user.profile_image,
+        is_verified: user.is_verified,
+        credentials: {
+          nin: user?.credentials?.nin,
+          bvn: user?.credentials?.bvn,
+        },
+      }
+    };
   }
 
   async updateUser(id: number, dto: UpdateUserDto) {

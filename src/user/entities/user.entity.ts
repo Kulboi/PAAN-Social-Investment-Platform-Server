@@ -17,6 +17,11 @@ enum AuthType {
   EMAIL = 'EMAIL',
 }
 
+export enum Gender {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+}
+
 @Entity({ name: 'users' })
 export class User {
   static getPasswordNullable(authType: 'social' | 'email') {
@@ -61,6 +66,13 @@ export class User {
 
   @Column({ nullable: true })
   state: string;
+
+  @Column({ 
+    nullable: true,
+    type: 'enum',
+    enum: Gender
+  })
+  gender: Gender;
 
   @Column({ default: false })
   is_verified: boolean;
