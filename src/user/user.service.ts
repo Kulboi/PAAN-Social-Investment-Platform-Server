@@ -60,7 +60,11 @@ export class UserService {
         country: user.country,
         gender: user.gender,
         date_of_birth: user.date_of_birth,
-        profile_image: user.profile_image
+        profile_image: user.profile_image,
+        credentials: {
+          nin: user?.credentials?.nin,
+          bvn: user?.credentials?.bvn,
+        }
       }
     }
   }

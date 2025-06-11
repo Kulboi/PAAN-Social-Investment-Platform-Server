@@ -6,10 +6,7 @@ import {
   IsDateString, 
   IsEnum,
   IsObject,
-  IsInstance
 } from 'class-validator';
-
-import { Credential } from '../entities/credential.entity';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -62,7 +59,6 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsObject()
-  @IsInstance(Credential)
   credentials?: {
     nin?: string,
     bvn?: string
