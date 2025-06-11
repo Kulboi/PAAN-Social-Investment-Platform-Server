@@ -44,7 +44,25 @@ export class UserService {
     if (!user) throw new NotFoundException('User not found');
 
     Object.assign(user, dto);
-    return this.userRepo.save(user);
+    await this.userRepo.save(user);
+
+    return {
+      message: 'User updated successfully',
+      data: {
+        first_name: user.first_name,
+        middle_name: user.middle_name,
+        last_name: user.last_name,
+        email: user.email,
+        address: user.address,
+        lga: user.lga,
+        state: user.state,
+        phone: user.phone,
+        country: user.country,
+        gender: user.gender,
+        date_of_birth: user.date_of_birth,
+        profile_image: user.profile_image
+      }
+    }
   }
 
   async changePassword(id: number, dto: ChangePasswordDto) {
