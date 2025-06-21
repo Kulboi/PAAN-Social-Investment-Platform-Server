@@ -74,6 +74,12 @@ export class User {
   })
   gender: Gender;
 
+  @Column({ nullable: true })
+  occupation: string;
+
+  @Column('text', { array: true, nullable: true })
+  interests: string[];
+
   @Column({ default: false })
   is_verified: boolean;
 

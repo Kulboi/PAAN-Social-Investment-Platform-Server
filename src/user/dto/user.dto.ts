@@ -6,6 +6,7 @@ import {
   IsDateString, 
   IsEnum,
   IsObject,
+  IsArray
 } from 'class-validator';
 
 export class UpdateUserDto {
@@ -44,6 +45,11 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  interests?: string[];
 
   @IsOptional()
   @IsDateString()
