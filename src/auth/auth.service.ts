@@ -20,6 +20,7 @@ import { generateOTP } from '../common/utils/functions';
 import {
   RegisterDto,
   LoginDto,
+  GoogleAuthDTO,
   ForgotPasswordDto,
   ResetPasswordDto,
 } from './dto/auth.dto';
@@ -153,6 +154,29 @@ export class AuthService {
 
     const userLogin = await this.signInLogic(user);
     return userLogin;
+  }
+
+  async googleAuth(dto: GoogleAuthDTO) {
+    const user = await this.userRepo.findOne({ where: { email: dto.email } });
+    if (user) {
+      const userLogin = await this.signInLogic(user);
+      return userLogin;
+    } else {
+      const newUser = this.userRepo.create({
+        first_name: dto.first_name,
+        last_name: dto.last_name,
+        email: dto.email,
+        profile_image: dto.photo,
+        is_verified: true,
+      });
+
+      await this.userRepo.save(newUser);
+      const userLogin = await this.signInLogic(newUser);
+      return {
+        ...userLogin,
+        isNewUser: true,
+      };
+    }
   }
 
   async refreshTokens(userId: number, refreshToken: string) {

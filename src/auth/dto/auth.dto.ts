@@ -12,6 +12,15 @@ export class LoginDto {
   @MinLength(6) password: string;
 }
 
+export class GoogleAuthDTO {
+  @IsNotEmpty() token: string;
+  @IsNotEmpty() id: string;
+  @IsNotEmpty() email: string;
+  @IsNotEmpty() first_name: string;
+  @IsNotEmpty() last_name: string;
+  @IsNotEmpty() photo: string;
+}
+
 export class ForgotPasswordDto {
   @IsEmail() email: string;
 }
