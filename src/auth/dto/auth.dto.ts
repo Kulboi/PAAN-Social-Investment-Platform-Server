@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, MinLength, IsOptional } from 'class-validator';
 
 export class RegisterDto {
   @IsNotEmpty() first_name: string;
@@ -18,7 +18,7 @@ export class GoogleAuthDTO {
   @IsNotEmpty() email: string;
   @IsNotEmpty() first_name: string;
   @IsNotEmpty() last_name: string;
-  profile_image: string;
+  @IsOptional() profile_image?: string;
 }
 
 export class ForgotPasswordDto {

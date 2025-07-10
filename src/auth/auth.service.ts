@@ -166,6 +166,7 @@ export class AuthService {
         first_name: dto.first_name,
         last_name: dto.last_name,
         email: dto.email,
+        profile_image: dto.profile_image,
         is_verified: true,
         auth_type: AuthType.SOCIAL,
         google_auth_details: JSON.stringify(dto),
