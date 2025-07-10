@@ -174,8 +174,11 @@ export class AuthService {
       await this.userRepo.save(newUser);
       const userLogin = await this.signInLogic(newUser);
       return {
-        ...userLogin,
-        isNewUser: true,
+        data: {
+          ...userLogin,
+          isNewUser: true,
+        },
+        message: 'Login successful',
       };
     }
   }
