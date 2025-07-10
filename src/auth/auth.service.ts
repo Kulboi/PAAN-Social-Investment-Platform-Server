@@ -12,7 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 
 import { MailerService } from '../common/utils/mailer.service';
 
-import { User } from '../user/entities/user.entity';
+import { User, AuthType } from '../user/entities/user.entity';
 import { Verification } from './entities/verification.entity';
 
 import { generateOTP } from '../common/utils/functions';
@@ -166,8 +166,9 @@ export class AuthService {
         first_name: dto.first_name,
         last_name: dto.last_name,
         email: dto.email,
-        profile_image: dto.photo,
         is_verified: true,
+        auth_type: AuthType.SOCIAL,
+        google_auth_details: JSON.stringify(dto),
       });
 
       await this.userRepo.save(newUser);

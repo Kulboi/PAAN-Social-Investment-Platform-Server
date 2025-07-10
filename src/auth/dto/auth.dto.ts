@@ -18,7 +18,7 @@ export class GoogleAuthDTO {
   @IsNotEmpty() email: string;
   @IsNotEmpty() first_name: string;
   @IsNotEmpty() last_name: string;
-  @IsNotEmpty() photo: string;
+  profile_image: string;
 }
 
 export class ForgotPasswordDto {

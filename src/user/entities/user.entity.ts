@@ -12,7 +12,7 @@ import { BankAccounts } from './bank-accounts.entity';
 import { Verification } from '../../auth/entities/verification.entity';
 import { Wallet } from '../../wallet/entities/wallet.entity';
 
-enum AuthType {
+export enum AuthType {
   SOCIAL = 'SOCIAL',
   EMAIL = 'EMAIL',
 }
@@ -24,10 +24,6 @@ export enum Gender {
 
 @Entity({ name: 'users' })
 export class User {
-  static getPasswordNullable(authType: 'social' | 'email') {
-    return authType === 'social';
-  }
-
   @PrimaryGeneratedColumn('uuid')
   id: number;
 
@@ -43,7 +39,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: User.getPasswordNullable('email') })
+  @Column({ nullable: true })
   password: string;
 
   @Column({ nullable: true })
@@ -99,7 +95,10 @@ export class User {
     enum: AuthType,
     default: 'EMAIL',
   })
-  authType: AuthType;
+  auth_type: AuthType;
+
+  @Column({ nullable: true, type: 'json' })
+  google_auth_details: {};
 
   @Column({ nullable: true })
   hashedRt: string;
