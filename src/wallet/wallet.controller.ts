@@ -7,11 +7,14 @@ import {
   Request,
   Query,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RawBodyGuard } from '../common/guards/raw-body.guard';
 
 import { WalletService } from './wallet.service';
+
+import { Wallet } from './entities/wallet.entity';
 
 import { DepositDto, WithdrawDto } from './dto/wallet.dto';
 
@@ -21,6 +24,11 @@ export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
   @Get('create')
+  @ApiOperation({ summary: 'Create user wallet' })
+  @ApiResponse({ 
+    status: 200, description: 'Wallet creation successful.', 
+    type: Wallet 
+  })
   createWallet(@Request() req) {
     return this.walletService.createWallet(req.user.id);
   }

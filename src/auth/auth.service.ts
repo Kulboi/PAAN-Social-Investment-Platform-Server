@@ -24,7 +24,6 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
 } from './dto/auth.dto';
-import { stat } from 'fs';
 
 @Injectable()
 export class AuthService {
@@ -221,7 +220,7 @@ export class AuthService {
     this.mockTokens.set(token, user.email);
     await this.mailerService.sendOTP(user.email, token);
 
-    return { message: 'Reset token sent to email' };
+    return { description: 'Reset token sent to email' };
   }
 
   async resetPassword(dto: ResetPasswordDto) {
@@ -234,6 +233,11 @@ export class AuthService {
 
     this.mockTokens.delete(dto.token);
 
-    return { message: 'Password reset successful' };
+    return { description: 'Password reset successful' };
+  }
+
+  async logout(userId: number) {
+    await this.userRepo.update(userId, { hashedRt: null });
+    return { description: 'Logout successful' };
   }
 }
