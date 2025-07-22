@@ -175,7 +175,7 @@ export class AuthService {
       const userLogin = await this.signInLogic(newUser);
       return {
         data: {
-          ...userLogin,
+          ...userLogin.data,
           isNewUser: true,
         },
         message: 'Login successful',
