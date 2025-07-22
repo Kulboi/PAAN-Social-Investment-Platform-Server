@@ -10,12 +10,6 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RegisterDto, LoginDto, GoogleAuthDTO, ForgotPasswordDto, ResetPasswordDto } from './dto/auth.dto';
 import { ResendOTPDto, UserVerificationDto } from './dto/user-verification-dto';
 
-
-interface RefreshTokenResponse {
-  access_token: string;
-  refresh_token: string;
-}
-
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {

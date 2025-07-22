@@ -13,6 +13,7 @@ import { AuthModule } from "./auth/auth.module";
 import { WalletModule } from './wallet/wallet.module';
 
 import { AppController } from './app.controller';
+import { FollowModule } from './follow/follow.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AppController } from './app.controller';
     UserModule,
     AuthModule,
     WalletModule,
+    FollowModule,
   ],
   providers: [JwtStrategy, RtStrategy],
   controllers: [AppController],
