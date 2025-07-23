@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { OnEvent } from '@nestjs/event-emitter';
 
 import { UserService } from 'src/user/user.service';
 import { FlutterwaveService } from 'src/common/utils/flutterwave.service';
@@ -38,7 +39,11 @@ export class WalletService {
 
   async createWallet(userId: number) {
     const wallet = this.walletRepo.create({ user: { id: userId } });
-    return this.walletRepo.save(wallet);
+    const savedWallet = await this.walletRepo.save(wallet);
+
+    return {
+      balance: savedWallet.balance,
+    }
   }
 
   async getBalance(userId: number) {

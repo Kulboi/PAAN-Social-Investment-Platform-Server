@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { MailerService } from '../common/utils/mailer.service';
 
@@ -35,7 +36,7 @@ export class AuthService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(Verification) private readonly verificationRepo: Repository<Verification>,
     private readonly mailerService: MailerService,
-    private jwtService: JwtService,
+    private jwtService: JwtService
   ) {}
 
   async register(dto: RegisterDto) {

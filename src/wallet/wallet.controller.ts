@@ -34,6 +34,11 @@ export class WalletController {
   }
 
   @Get('balance')
+  @ApiOperation({ summary: 'Get user wallet balance' })
+  @ApiResponse({
+    status: 200, description: 'Wallet balance retrieved successfully.',
+    type: Wallet
+  })
   getBalance(@Request() req) {
     return this.walletService.getBalance(req.user.id);
   }

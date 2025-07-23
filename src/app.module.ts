@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 // Strategies
 import { JwtStrategy } from './common/strategies/jwt.strategy';
@@ -37,6 +38,7 @@ import { FollowModule } from './follow/follow.module';
     AuthModule,
     WalletModule,
     FollowModule,
+    EventEmitterModule.forRoot()
   ],
   providers: [JwtStrategy, RtStrategy],
   controllers: [AppController],
