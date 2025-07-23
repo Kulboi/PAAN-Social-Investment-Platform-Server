@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Wallet } from './../wallet/entities/wallet.entity';
 
 import { MailerService } from '../common/utils/mailer.service';
 
@@ -35,6 +35,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(Verification) private readonly verificationRepo: Repository<Verification>,
+    @InjectRepository(Wallet) private readonly walletRepo: Repository<Wallet>,
     private readonly mailerService: MailerService,
     private jwtService: JwtService
   ) {}
@@ -113,6 +114,11 @@ export class AuthService {
     await this.userRepo.save(user);
     await this.verificationRepo.remove(verification);
 
+    // Create user wallet
+    const wallet = this.walletRepo.create({ user: { id: user.id } });
+    await this.walletRepo.save(wallet);
+
+    // sign in
     const userLogin = await this.signInLogic(user);
 
     return { 

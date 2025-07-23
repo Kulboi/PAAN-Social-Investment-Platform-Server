@@ -7,11 +7,12 @@ import { MailerService } from 'src/common/utils/mailer.service';
 
 import { AuthController } from './auth.controller';
 
-import { User } from './../user/entities/user.entity';
-import { Verification } from './entities/verification.entity';
+import { User } from 'src/user/entities/user.entity';
+import { Verification } from 'src/auth/entities/verification.entity';
+import { Wallet } from 'src/wallet/entities/wallet.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Verification])],
+  imports: [TypeOrmModule.forFeature([User, Verification, Wallet])],
   controllers: [AuthController],
   providers: [AuthService, MailerService, JwtService],
 })

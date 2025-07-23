@@ -5,9 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { OnEvent } from '@nestjs/event-emitter';
 
-import { UserService } from 'src/user/user.service';
 import { FlutterwaveService } from 'src/common/utils/flutterwave.service';
 import { WebhookLoggerService } from 'src/common/utils/webhook-logger.service';
 
@@ -15,7 +13,6 @@ import { Wallet } from './entities/wallet.entity';
 import {
   WalletTransactions,
   TransactionType,
-  TransactionStatus,
 } from './entities/transaction.entity';
 import { User } from '../user/entities/user.entity';
 
