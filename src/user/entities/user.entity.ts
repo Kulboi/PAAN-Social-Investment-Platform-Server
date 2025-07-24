@@ -11,6 +11,11 @@ import { Credential } from './credential.entity';
 import { BankAccounts } from './bank-accounts.entity';
 import { Verification } from '../../auth/entities/verification.entity';
 import { Wallet } from '../../wallet/entities/wallet.entity';
+import { Post } from '../../feed/entities/post.entity';
+import { PostLike } from '../../feed/entities/post-like.entity';
+import { PostComment } from '../../feed/entities/post-comment.entity';
+import { PostShare } from '../../feed/entities/post-share.entity';
+import { PostReport } from '../../feed/entities/post-report.entity';
 
 export enum AuthType {
   SOCIAL = 'SOCIAL',
@@ -25,7 +30,7 @@ export enum Gender {
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column()
   first_name: string;
@@ -106,4 +111,20 @@ export class User {
   @OneToOne(() => Wallet, (wallet) => wallet.user, { onDelete: 'CASCADE' })
   @JoinColumn()
   wallet: Wallet;
+
+  // Feed relationships
+  @OneToMany(() => Post, (post) => post.author)
+  posts: Post[];
+
+  @OneToMany(() => PostLike, (like) => like.user)
+  likes: PostLike[];
+
+  @OneToMany(() => PostComment, (comment) => comment.author)
+  comments: PostComment[];
+
+  @OneToMany(() => PostShare, (share) => share.user)
+  shares: PostShare[];
+
+  @OneToMany(() => PostReport, (report) => report.reporter)
+  reports: PostReport[];
 }

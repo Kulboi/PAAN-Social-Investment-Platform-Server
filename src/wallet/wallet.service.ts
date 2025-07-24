@@ -38,8 +38,10 @@ export class WalletService {
     const wallet = this.walletRepo.create({ user: { id: userId } });
     const savedWallet = await this.walletRepo.save(wallet);
 
-    return {
-      balance: savedWallet.balance,
+    return { 
+      data: {
+        balance: wallet.balance
+      }
     }
   }
 
@@ -48,7 +50,12 @@ export class WalletService {
       where: { user: { id: userId } },
     });
     if (!wallet) throw new NotFoundException('Wallet not found');
-    return { balance: wallet.balance };
+
+    return { 
+      data: {
+        balance: wallet.balance
+      }
+    }
   }
 
   async getTransactions(userId: number, page = 1, limit = 10) {
@@ -72,7 +79,7 @@ export class WalletService {
     };
   }
 
-  async initiateDeposit(userId: number, amount: number) {
+  async initiateDeposit(userId: string, amount: number) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
