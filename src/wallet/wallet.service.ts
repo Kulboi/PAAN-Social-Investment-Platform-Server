@@ -34,7 +34,7 @@ export class WalletService {
     private webhookLoggerService: WebhookLoggerService,
   ) {}
 
-  async createWallet(userId: number) {
+  async createWallet(userId: string) {
     const wallet = this.walletRepo.create({ user: { id: userId } });
     const savedWallet = await this.walletRepo.save(wallet);
 
@@ -45,7 +45,7 @@ export class WalletService {
     }
   }
 
-  async getBalance(userId: number) {
+  async getBalance(userId: string) {
     const wallet = await this.walletRepo.findOne({
       where: { user: { id: userId } },
     });
@@ -58,7 +58,7 @@ export class WalletService {
     }
   }
 
-  async getTransactions(userId: number, page = 1, limit = 10) {
+  async getTransactions(userId: string, page = 1, limit = 10) {
     const wallet = await this.walletRepo.findOne({
       where: { user: { id: userId } },
     });
@@ -114,7 +114,7 @@ export class WalletService {
     }
   }
 
-  async deposit(userId: number, dto: DepositDto) {
+  async deposit(userId: string, dto: DepositDto) {
     const wallet = await this.walletRepo.findOne({
       where: { user: { id: userId } },
     });
@@ -132,7 +132,7 @@ export class WalletService {
     return { message: 'Deposit successful' };
   }
 
-  async withdraw(userId: number, dto: WithdrawDto) {
+  async withdraw(userId: string, dto: WithdrawDto) {
     const wallet = await this.walletRepo.findOne({
       where: { user: { id: userId } },
     });

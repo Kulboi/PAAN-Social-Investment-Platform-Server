@@ -11,7 +11,7 @@ import { UpdateUserDto, ChangePasswordDto } from './dto/user.dto';
 export class UserService {
   constructor(@InjectRepository(User) private readonly userRepo: Repository<User>) {}
 
-  async getUser(id: number) {
+  async getUser(id: string) {
     const user = await this.userRepo.findOne({ where: { id }, relations: ['credentials'] });
     if (!user) throw new NotFoundException('User not found');
 
@@ -39,7 +39,7 @@ export class UserService {
     };
   }
 
-  async updateUser(id: number, dto: UpdateUserDto) {
+  async updateUser(id: string, dto: UpdateUserDto) {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 
@@ -69,7 +69,7 @@ export class UserService {
     }
   }
 
-  async changePassword(id: number, dto: ChangePasswordDto) {
+  async changePassword(id: string, dto: ChangePasswordDto) {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 
@@ -82,7 +82,7 @@ export class UserService {
     return { message: 'Password changed successfully' };
   }
 
-  async deleteUser(id: number) {
+  async deleteUser(id: string) {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
     

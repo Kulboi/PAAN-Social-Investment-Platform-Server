@@ -193,7 +193,7 @@ export class AuthService {
     }
   }
 
-  async refreshTokens(userId: number, refreshToken: string) {
+  async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) throw new ForbiddenException('Access Denied');
 
