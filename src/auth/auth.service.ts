@@ -153,11 +153,12 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    console.log(`login dto: ${JSON.stringify(dto)}`);
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
-    console.log(`user requesting login: ${JSON.stringify(user)}`);
-    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
+
+    if(user.auth_type === AuthType.EMAIL) {
+      if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
     }
 
     const userLogin = await this.signInLogic(user);
