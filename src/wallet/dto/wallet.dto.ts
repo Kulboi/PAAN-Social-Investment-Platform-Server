@@ -18,4 +18,16 @@ export class WithdrawDto {
   @IsNumber()
   @Min(100)
   amount: number;
+
+  @IsString()
+  @IsNotEmpty()
+  accountBank: string;
+
+  @IsString()
+  @IsNotEmpty()
+  accountNumber: string;
+
+  @IsString()
+  @IsNotEmpty()
+  accountName: string;
 }

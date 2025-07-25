@@ -138,6 +138,18 @@ export class WalletService {
     if (wallet.balance < dto.amount)
       throw new BadRequestException('Insufficient balance');
 
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+    });
+    const withdrawResponse = await this.flutterwaveService.withdraw({
+      email: user.email,
+      amount: dto.amount,
+      account_bank: dto.accountBank,
+      account_number: dto.accountNumber,
+      account_name: dto.accountName,
+    });
+    console.log(withdrawResponse)
+
     wallet.balance -= Number(dto.amount);
     await this.walletRepo.save(wallet);
 

@@ -1,5 +1,5 @@
 import { Controller, Post, Patch, Body, UseGuards, Req, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 
@@ -11,31 +11,64 @@ import { RegisterDto, LoginDto, GoogleAuthDTO, ForgotPasswordDto, ResetPasswordD
 import { ResendOTPDto, UserVerificationDto } from './dto/user-verification-dto';
 
 @ApiTags('Authentication')
-@Controller('auth')
+@Controller('api/v1/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('google')
+  @ApiOperation({ summary: 'Google login' })
+  @ApiBody({ 
+    type: GoogleAuthDTO,
+    schema: {
+      properties: {
+        token: { type: 'string' },
+      },
+    },
+  })
+  @ApiResponse({ 
+    status: 200, 
+    type: Object,
+  })
   async googleLogin(@Body() payload: GoogleAuthDTO): Promise<any> {
     return await this.authService.googleAuth(payload);
   }
 
   @Post('register')
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({ 
+    status: 200, 
+    type: Object,
+  })
   async register(@Body() payload: RegisterDto): Promise<any> {
     return await this.authService.register(payload);
   }
 
   @Patch('resend-otp')
+  @ApiOperation({ summary: 'Resend OTP' })
+  @ApiResponse({ 
+    status: 200, 
+    type: Object,
+  })
   async resendOTP(@Body() payload: ResendOTPDto): Promise<any> {
     return await this.authService.resendOTP(payload.email);
   }
 
   @Post('verify-user')
+  @ApiOperation({ summary: 'Verify user' })
+  @ApiResponse({ 
+    status: 200, 
+    type: Object,
+  })
   async verifyUser(@Body() payload: UserVerificationDto): Promise<any> {
     return await this.authService.verifyUser(payload.email, payload.otp);
   }
 
   @Post('login')
+  @ApiOperation({ summary: 'Login user' })
+  @ApiResponse({ 
+    status: 200, 
+    type: Object,
+  })
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
@@ -72,6 +105,7 @@ export class AuthController {
 
   @Get('logout')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Log user out' })
   @ApiResponse({ 
     status: 200, description: 'Logout successful', 

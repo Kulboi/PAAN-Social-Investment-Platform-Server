@@ -28,7 +28,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 @ApiTags('Feed')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('feed')
+@Controller('api/v1/feed')
 export class FeedController {
   constructor(private readonly feedService: FeedService) {}
 

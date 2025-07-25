@@ -18,7 +18,7 @@ import { Wallet } from './entities/wallet.entity';
 
 import { DepositDto, WithdrawDto } from './dto/wallet.dto';
 
-@Controller('wallet')
+@Controller('api/v1/wallet')
 @UseGuards(JwtAuthGuard)
 export class WalletController {
   constructor(private readonly walletService: WalletService) {}
