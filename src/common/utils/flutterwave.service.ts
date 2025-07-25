@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 
@@ -27,13 +27,18 @@ export class FlutterwaveService {
   }
 
   async verifyTransaction(txId: string) {
-    const response = await this.http.get(`https://api.flutterwave.com/v3/transactions/${txId}/verify`, {
-      headers: {
-        Authorization: `Bearer ${this.configService.get('FLUTTERWAVE_SECRET_KEY')}`,
-      },
-    }).toPromise();
-    
-    return response.data;
+    try {
+      const response = await this.http.get(`https://api.flutterwave.com/v3/transactions/${txId}/verify`, {
+        headers: {
+          Authorization: `Bearer ${this.configService.get('FLUTTERWAVE_SECRET_KEY')}`,
+        },
+      }).toPromise();
+      
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Transaction verification failed');
+    }
   }
 
   async withdraw(email: string, amount: number) {

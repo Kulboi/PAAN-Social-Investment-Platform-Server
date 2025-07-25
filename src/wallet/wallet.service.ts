@@ -14,6 +14,7 @@ import { Wallet } from './entities/wallet.entity';
 import {
   WalletTransactions,
   TransactionType,
+  TransactionStatus,
 } from './entities/transaction.entity';
 import { User } from '../user/entities/user.entity';
 
@@ -84,14 +85,18 @@ export class WalletService {
     const wallet = await this.walletRepo.findOne({
       where: { user: { id: userId } },
     });
-    if (!wallet) throw new NotFoundException('Wallet not found');
-    await this.mailerService.sendDepositFailureNotification({
-      to: wallet.user.email,
-      reference: dto.transactionRef,
-    });
+    if (!wallet) {
+      await this.mailerService.sendDepositFailureNotification({
+        to: wallet.user.email,
+        reference: dto.transactionRef,
+      });
+      throw new NotFoundException('Wallet not found');
+    }
 
-    const verifyDeposit = await this.flutterwaveService.verifyTransaction(dto.transactionId);
-    if (verifyDeposit.status !== 'successful') throw new BadRequestException('Deposit failed');
+    // TODO: Uncomment this when the flutterwave service is ready
+    // const verifyDeposit = await this.flutterwaveService.verifyTransaction(dto.transactionId);
+    // console.log({verifyDeposit});
+    // if (verifyDeposit.status !== 'successful') throw new BadRequestException('Deposit failed');
 
     wallet.balance += Number(dto.amount);
     await this.walletRepo.save(wallet);
@@ -101,7 +106,7 @@ export class WalletService {
       type: TransactionType.DEPOSIT,
       transactionId: dto.transactionId,
       reference: dto.transactionRef,
-      status: verifyDeposit.status,
+      status: TransactionStatus.SUCCESS,
       wallet,
     });
     await this.transactionRepo.save(transaction);
