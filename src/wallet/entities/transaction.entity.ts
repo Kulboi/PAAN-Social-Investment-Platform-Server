@@ -14,8 +14,8 @@ export enum TransactionStatus {
 
 @Entity()
 export class WalletTransactions {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   amount: number;
@@ -26,7 +26,10 @@ export class WalletTransactions {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
+  @Column({ nullable: false })
+  transactionId: string;
+
+  @Column({ nullable: false })
   reference: string;
 
   @Column({ type: 'enum', enum: TransactionStatus })

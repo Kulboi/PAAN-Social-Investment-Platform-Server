@@ -1,13 +1,21 @@
-import { IsNumber, Min } from 'class-validator';
+import { IsNumber, Min, IsString, IsNotEmpty } from 'class-validator';
 
 export class DepositDto {
   @IsNumber()
-  @Min(1)
+  @Min(100)
   amount: number;
+
+  @IsString()
+  @IsNotEmpty()
+  transactionRef: string;
+
+  @IsString()
+  @IsNotEmpty()
+  transactionId: string;
 }
 
 export class WithdrawDto {
   @IsNumber()
-  @Min(1)
+  @Min(100)
   amount: number;
 }

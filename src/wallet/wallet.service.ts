@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 
 import { FlutterwaveService } from 'src/common/utils/flutterwave.service';
 import { WebhookLoggerService } from 'src/common/utils/webhook-logger.service';
+import { MailerService } from 'src/common/utils/mailer.service';
 
 import { Wallet } from './entities/wallet.entity';
 import {
@@ -31,7 +32,7 @@ export class WalletService {
     private readonly userRepo: Repository<User>,
 
     private flutterwaveService: FlutterwaveService,
-    private webhookLoggerService: WebhookLoggerService,
+    private mailerService: MailerService,
   ) {}
 
   async createWallet(userId: string) {
@@ -79,55 +80,37 @@ export class WalletService {
     };
   }
 
-  async initiateDeposit(userId: string, amount: number) {
-    const user = await this.userRepo.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
-
-    const flutterwaveRes = await this.flutterwaveService.initiateDeposit(
-      user.email,
-      amount,
-    );
-    return flutterwaveRes;
-  }
-
-  async handleDepositWebhook(payload: any) {
-    const reference = payload.data.reference;
-    const status = payload.data.status;
-
-    await this.webhookLoggerService.log('flutterwave', payload);
-
-    const transaction = await this.transactionRepo.findOne({
-      where: { reference },
-      relations: ['wallet'],
-    });
-    if (!transaction) return;
-
-    transaction.status = status;
-    await this.transactionRepo.save(transaction);
-
-    if (status !== 'successful') {
-      transaction.wallet.balance += transaction.amount;
-      await this.walletRepo.save(transaction.wallet);
-      // await this.mailerService.sendFailureNotification(transaction.wallet.user.email, reference);
-    } else {
-      // await this.mailerService.sendSuccessNotification(transaction.wallet.user.email, reference);
-    }
-  }
-
   async deposit(userId: string, dto: DepositDto) {
     const wallet = await this.walletRepo.findOne({
       where: { user: { id: userId } },
     });
     if (!wallet) throw new NotFoundException('Wallet not found');
+    await this.mailerService.sendDepositFailureNotification({
+      to: wallet.user.email,
+      reference: dto.transactionRef,
+    });
+
+    const verifyDeposit = await this.flutterwaveService.verifyTransaction(dto.transactionId);
+    if (verifyDeposit.status !== 'successful') throw new BadRequestException('Deposit failed');
+
     wallet.balance += Number(dto.amount);
     await this.walletRepo.save(wallet);
 
     const transaction = this.transactionRepo.create({
       amount: dto.amount,
       type: TransactionType.DEPOSIT,
+      transactionId: dto.transactionId,
+      reference: dto.transactionRef,
+      status: verifyDeposit.status,
       wallet,
     });
     await this.transactionRepo.save(transaction);
+
+    await this.mailerService.sendDepositSuccessNotification({
+      to: wallet.user.email,
+      reference: dto.transactionRef,
+      balance: wallet.balance,
+    });
 
     return { message: 'Deposit successful' };
   }

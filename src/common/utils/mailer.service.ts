@@ -2,6 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Resend } from 'resend';
 import { BrevoService } from './brevo.service';
 
+interface DepositSuccessNotification {
+  to: string;
+  reference: string;
+  balance: number;
+}
+
+interface DepositFailureNotification {
+  to: string;
+  reference: string;
+}
+
 @Injectable()
 export class MailerService {
   private resend: Resend;
@@ -23,7 +34,21 @@ export class MailerService {
 
     return request;
   }
+
   async sendOTP(to: string, otp: string) {
     return await this.brevoService.sendEmail(to, 'Your PAAN Circle Verification OTP', `<h3>Your OTP is ${otp}</h3>`);
+  }
+
+  async sendDepositSuccessNotification({to, reference, balance}: DepositSuccessNotification) {
+    return await this.brevoService.sendEmail(
+      to, 
+      'Your PAAN Circle Deposit was successful', 
+      `<h3>Your deposit of ${reference} was successful</h3>
+      <p>Your balance has been updated to ${balance}</p>`
+    );
+  }
+
+  async sendDepositFailureNotification({to, reference}: DepositFailureNotification) {
+    return await this.brevoService.sendEmail(to, 'Your PAAN Circle Deposit was unsuccessful', `<h3>Your deposit of ${reference} was unsuccessful</h3>`);
   }
 }
