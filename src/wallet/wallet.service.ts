@@ -99,7 +99,7 @@ export class WalletService {
     // console.log({verifyDeposit});
     // if (verifyDeposit.status !== 'successful') throw new BadRequestException('Deposit failed');
 
-    wallet.balance += Number(dto.amount);
+    wallet.balance = Number(wallet.balance) + Number(dto.amount);
     await this.walletRepo.save(wallet);
 
     const transaction = this.transactionRepo.create({
