@@ -112,7 +112,12 @@ export class WalletService {
       balance: wallet.balance,
     });
 
-    return { message: 'Deposit successful' };
+    return { 
+      message: 'Deposit successful',
+      data: {
+        balance: wallet.balance
+      }
+    }
   }
 
   async withdraw(userId: string, dto: WithdrawDto) {
