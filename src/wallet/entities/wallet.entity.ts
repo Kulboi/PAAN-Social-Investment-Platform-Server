@@ -15,6 +15,6 @@ export class Wallet {
   @JoinColumn()
   user: User;
 
-  @OneToMany(() => WalletTransactions, transaction => transaction.wallet)
+  @OneToMany(() => WalletTransactions, transaction => transaction.wallet, { onDelete: 'CASCADE' })
   transactions: WalletTransactions[];
 }

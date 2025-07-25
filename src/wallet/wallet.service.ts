@@ -85,6 +85,7 @@ export class WalletService {
     const wallet = await this.walletRepo.findOne({
       where: { user: { id: userId } },
     });
+  
     if (!wallet) {
       await this.mailerService.sendDepositFailureNotification({
         to: wallet.user.email,
@@ -111,8 +112,12 @@ export class WalletService {
     });
     await this.transactionRepo.save(transaction);
 
+    // Send email notification to user
+    const user = await this.userRepo.findOne({
+      where: { id: userId },
+    });
     await this.mailerService.sendDepositSuccessNotification({
-      to: wallet.user.email,
+      to: user.email,
       reference: dto.transactionRef,
       balance: wallet.balance,
     });
