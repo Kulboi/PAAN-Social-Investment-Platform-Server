@@ -43,17 +43,15 @@ export class FeedController {
   @Get('posts')
   @ApiOperation({ summary: 'Get feed posts with pagination and filters' })
   @ApiResponse({ status: 200, description: 'Feed posts retrieved successfully' })
-  async getFeed(@Query() getFeedDto: GetFeedDto) {
-    // Implementation for getting feed posts
-    return { message: 'Get feed posts - to be implemented' };
+  async getFeed(@Request() req) {
+    return this.feedService.getFeed(req.user.id);
   }
 
   @Get('posts/:id')
   @ApiOperation({ summary: 'Get a specific post by ID' })
   @ApiResponse({ status: 200, description: 'Post retrieved successfully' })
   async getPost(@Param('id') id: string) {
-    // Implementation for getting a specific post
-    return { message: `Get post ${id} - to be implemented` };
+    return this.feedService.getPost(id);
   }
 
   @Patch('posts/:id')

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Post } from './entities/post.entity';
+import { Post, PostVisibility } from './entities/post.entity';
 import { PostLike } from './entities/post-like.entity';
 import { PostComment } from './entities/post-comment.entity';
 import { PostMedia } from './entities/post-media.entity';
@@ -41,6 +41,24 @@ export class FeedService {
     }
     
     return savedPost;
+  }
+
+  async getFeed(userId: string): Promise<Post[]> {
+    const posts = await this.postRepository.find({
+      where: {
+        visibility: PostVisibility.PUBLIC,
+      },
+      order: { createdAt: 'DESC' },
+    });
+    return posts;
+  }
+
+  async getPost(id: string): Promise<Post> {
+    const post = await this.postRepository.findOneBy({ id });
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return post;
   }
 
   async updatePost(postId: string, updatePostDto: UpdatePostDto): Promise<Post> {
