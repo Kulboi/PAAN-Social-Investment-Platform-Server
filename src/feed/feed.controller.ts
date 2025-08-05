@@ -14,6 +14,7 @@ import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagg
 import { FeedService } from './feed.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PostResponseDto } from './dto/post-response.dto';
 import {
   CreateCommentDto,
   UpdateCommentDto,
@@ -42,15 +43,23 @@ export class FeedController {
 
   @Get('posts')
   @ApiOperation({ summary: 'Get feed posts with pagination and filters' })
-  @ApiResponse({ status: 200, description: 'Feed posts retrieved successfully' })
-  async getFeed(@Request() req) {
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Feed posts retrieved successfully',
+    type: [PostResponseDto]
+  })
+  async getFeed(@Request() req): Promise<PostResponseDto[]> {
     return this.feedService.getFeed(req.user.id);
   }
 
   @Get('posts/:id')
   @ApiOperation({ summary: 'Get a specific post by ID' })
-  @ApiResponse({ status: 200, description: 'Post retrieved successfully' })
-  async getPost(@Param('id') id: string) {
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Post retrieved successfully',
+    type: PostResponseDto
+  })
+  async getPost(@Param('id') id: string): Promise<PostResponseDto> {
     return this.feedService.getPost(id);
   }
 

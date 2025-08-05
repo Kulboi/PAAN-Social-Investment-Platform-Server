@@ -10,6 +10,7 @@ import { PostReport } from './entities/post-report.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto, UpdateCommentDto, CreateLikeDto, CreateShareDto, CreateReportDto } from './dto/feed-interactions.dto';
+import { PostResponseDto } from './dto/post-response.dto';
 
 @Injectable()
 export class FeedService {
@@ -43,22 +44,73 @@ export class FeedService {
     return savedPost;
   }
 
-  async getFeed(userId: string): Promise<Post[]> {
+  async getFeed(userId: string): Promise<PostResponseDto[]> {
     const posts = await this.postRepository.find({
       where: {
         visibility: PostVisibility.PUBLIC,
       },
+      relations: ['author'],
       order: { createdAt: 'DESC' },
     });
-    return posts;
+
+    // Transform posts to include author information
+    return posts.map(post => this.transformPostWithAuthor(post));
   }
 
-  async getPost(id: string): Promise<Post> {
-    const post = await this.postRepository.findOneBy({ id });
+  async getPost(id: string): Promise<PostResponseDto> {
+    const post = await this.postRepository.findOne({
+      where: { id },
+      relations: ['author'],
+    });
+    
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
-    return post;
+    
+    return this.transformPostWithAuthor(post);
+  }
+
+  private transformPostWithAuthor(post: Post): PostResponseDto {
+    const authorInfo = post.author ? {
+      firstName: post.author.first_name,
+      lastName: post.author.last_name,
+      profileImage: post.author.profile_image,
+    } : {
+      firstName: 'Unknown',
+      lastName: 'User',
+      profileImage: null,
+    };
+    
+    return {
+      id: post.id,
+      content: post.content,
+      postType: post.postType,
+      visibility: post.visibility,
+      stockSymbol: post.stockSymbol,
+      stockPrice: post.stockPrice,
+      priceChange: post.priceChange,
+      marketSector: post.marketSector,
+      pollOptions: post.pollOptions,
+      pollExpiresAt: post.pollExpiresAt,
+      likesCount: post.likesCount,
+      commentsCount: post.commentsCount,
+      sharesCount: post.sharesCount,
+      viewsCount: post.viewsCount,
+      isReported: post.isReported,
+      isHidden: post.isHidden,
+      moderationNote: post.moderationNote,
+      hashtags: post.hashtags,
+      mentions: post.mentions,
+      location: post.location,
+      latitude: post.latitude,
+      longitude: post.longitude,
+      scheduledAt: post.scheduledAt,
+      isPublished: post.isPublished,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      authorId: post.authorId,
+      authorInfo,
+    };
   }
 
   async updatePost(postId: string, updatePostDto: UpdatePostDto): Promise<Post> {
