@@ -11,6 +11,11 @@ import {
   Request,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+
+import { CloudinaryService, SignedUploadParams } from '../common/services/cloudinary.service';
+
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+
 import { FeedService } from './feed.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -24,8 +29,7 @@ import {
   GetFeedDto,
   GetCommentsDto,
 } from './dto/feed-interactions.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { CloudinaryService, SignedUploadParams } from '../common/services/cloudinary.service';
+import { FetchPostRequestDto } from './dto/fetch-post.dto';
 
 @ApiTags('Feed')
 @ApiBearerAuth()
@@ -52,15 +56,18 @@ export class FeedController {
     return this.feedService.createPost(createPostDto, req.user.id);
   }
 
-  @Get('posts')
+  @Get()
   @ApiOperation({ summary: 'Get feed posts with pagination and filters' })
   @ApiResponse({ 
     status: 200, 
     description: 'Feed posts retrieved successfully',
     type: [PostResponseDto]
   })
-  async getFeed(@Request() req): Promise<PostResponseDto[]> {
-    return this.feedService.getFeed(req.user.id);
+  async getFeed(@Query() reqQuery: FetchPostRequestDto): Promise<PostResponseDto[]> {
+    return this.feedService.getFeed({
+      page: reqQuery.page,
+      limit: reqQuery.limit
+    });
   }
 
   @Get('posts/:id')

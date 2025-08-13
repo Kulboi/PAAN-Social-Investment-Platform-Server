@@ -1,17 +1,22 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+import { CloudinaryService } from '../common/services/cloudinary.service';
+
 import { Post, PostVisibility } from './entities/post.entity';
 import { PostLike } from './entities/post-like.entity';
 import { PostComment } from './entities/post-comment.entity';
-import { PostMedia, MediaType } from './entities/post-media.entity';
+import { PostMedia } from './entities/post-media.entity';
 import { PostShare } from './entities/post-share.entity';
 import { PostReport } from './entities/post-report.entity';
+
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto, UpdateCommentDto, CreateLikeDto, CreateShareDto, CreateReportDto } from './dto/feed-interactions.dto';
 import { PostResponseDto } from './dto/post-response.dto';
-import { CloudinaryService } from '../common/services/cloudinary.service';
+import { FetchPostRequestDto } from './dto/fetch-post.dto';
+
 
 @Injectable()
 export class FeedService {
@@ -60,12 +65,14 @@ export class FeedService {
     return savedPost;
   }
 
-  async getFeed(userId: string): Promise<PostResponseDto[]> {
+  async getFeed({ page = '1', limit = '20' }: FetchPostRequestDto): Promise<PostResponseDto[]> {
     const posts = await this.postRepository.find({
       where: {
         visibility: PostVisibility.PUBLIC,
       },
       relations: ['author'],
+      skip: (parseInt(page) - 1) * parseInt(limit),
+      take: parseInt(limit),
       order: { createdAt: 'DESC' },
     });
 
