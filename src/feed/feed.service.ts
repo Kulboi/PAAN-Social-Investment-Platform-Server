@@ -70,14 +70,14 @@ export class FeedService {
       where: {
         visibility: PostVisibility.PUBLIC,
       },
-      relations: ['author'],
+      relations: ['author', 'media'],
       skip: (parseInt(page) - 1) * parseInt(limit),
       take: parseInt(limit),
       order: { createdAt: 'DESC' },
     });
 
     // Transform posts to include author information
-    return posts.map(post => this.transformPostWithAuthor(post));
+    return posts.map(post => this.transformPost(post));
   }
 
   async getPost(id: string): Promise<PostResponseDto> {
@@ -90,10 +90,10 @@ export class FeedService {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
     
-    return this.transformPostWithAuthor(post);
+    return this.transformPost(post);
   }
 
-  private transformPostWithAuthor(post: Post): PostResponseDto {
+  private transformPost(post: Post): PostResponseDto {
     const authorInfo = post.author ? {
       firstName: post.author.first_name,
       lastName: post.author.last_name,
@@ -103,6 +103,22 @@ export class FeedService {
       lastName: 'User',
       profileImage: null,
     };
+
+    const media = post.media.map(mediaItem => ({
+      id: mediaItem.id,
+      mediaType: mediaItem.mediaType,
+      url: mediaItem.url,
+      thumbnailUrl: mediaItem.thumbnailUrl,
+      filename: mediaItem.filename,
+      mimeType: mediaItem.mimeType,
+      fileSize: mediaItem.fileSize,
+      width: mediaItem.width,
+      height: mediaItem.height,
+      duration: mediaItem.duration,
+      altText: mediaItem.altText,
+      caption: mediaItem.caption,
+      sortOrder: mediaItem.sortOrder,
+    }));
     
     return {
       id: post.id,
@@ -133,6 +149,7 @@ export class FeedService {
       updatedAt: post.updatedAt,
       authorId: post.authorId,
       authorInfo,
+      media,
     };
   }
 

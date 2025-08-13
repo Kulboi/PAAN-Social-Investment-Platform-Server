@@ -12,6 +12,35 @@ export class AuthorInfoDto {
   profileImage?: string;
 }
 
+export class PostMediaDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  url: string;
+
+  @ApiProperty()
+  mediaType: string;
+
+  @ApiProperty({ nullable: true })
+  thumbnailUrl?: string;
+
+  @ApiProperty({ nullable: true })
+  filename?: string;
+
+  @ApiProperty({ nullable: true })
+  mimeType?: string;
+
+  @ApiProperty({ nullable: true })
+  fileSize?: number;
+
+  @ApiProperty({ nullable: true })
+  width?: number;
+
+  @ApiProperty({ nullable: true })
+  height?: number;
+}
+
 export class PostResponseDto {
   @ApiProperty()
   id: string;
@@ -96,4 +125,7 @@ export class PostResponseDto {
 
   @ApiProperty({ type: AuthorInfoDto })
   authorInfo: AuthorInfoDto;
+
+  @ApiProperty({ type: [PostMediaDto] })
+  media?: PostMediaDto[];
 } 
