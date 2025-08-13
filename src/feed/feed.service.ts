@@ -4,13 +4,14 @@ import { Repository } from 'typeorm';
 import { Post, PostVisibility } from './entities/post.entity';
 import { PostLike } from './entities/post-like.entity';
 import { PostComment } from './entities/post-comment.entity';
-import { PostMedia } from './entities/post-media.entity';
+import { PostMedia, MediaType } from './entities/post-media.entity';
 import { PostShare } from './entities/post-share.entity';
 import { PostReport } from './entities/post-report.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreateCommentDto, UpdateCommentDto, CreateLikeDto, CreateShareDto, CreateReportDto } from './dto/feed-interactions.dto';
 import { PostResponseDto } from './dto/post-response.dto';
+import { CloudinaryService } from '../common/services/cloudinary.service';
 
 @Injectable()
 export class FeedService {
@@ -21,20 +22,35 @@ export class FeedService {
     @InjectRepository(PostMedia) private readonly mediaRepository: Repository<PostMedia>,
     @InjectRepository(PostShare) private readonly shareRepository: Repository<PostShare>,
     @InjectRepository(PostReport) private readonly reportRepository: Repository<PostReport>,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async createPost(createPostDto: CreatePostDto, userId: string): Promise<Post> {
+  async createPost(
+    createPostDto: CreatePostDto, 
+    userId: string, 
+  ): Promise<Post> {
     const { media, ...postData } = createPostDto;
     
     // Create the post first
     const post = this.postRepository.create({ ...postData, authorId: userId });
     const savedPost = await this.postRepository.save(post);
     
-    // Create media if provided
+    // Create media from DTO if provided (for Cloudinary URLs)
     if (media && media.length > 0) {
       const mediaEntities = media.map(mediaItem => 
         this.mediaRepository.create({
-          ...mediaItem,
+          mediaType: mediaItem.mediaType,
+          url: mediaItem.url,
+          thumbnailUrl: mediaItem.thumbnailUrl,
+          filename: mediaItem.filename,
+          mimeType: mediaItem.mimeType,
+          fileSize: mediaItem.fileSize,
+          width: mediaItem.width,
+          height: mediaItem.height,
+          duration: mediaItem.duration,
+          altText: mediaItem.altText,
+          caption: mediaItem.caption,
+          sortOrder: mediaItem.sortOrder,
           postId: savedPost.id,
         })
       );

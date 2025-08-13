@@ -8,6 +8,7 @@ import { PostComment } from './entities/post-comment.entity';
 import { PostMedia } from './entities/post-media.entity';
 import { PostShare } from './entities/post-share.entity';
 import { PostReport } from './entities/post-report.entity';
+import { CloudinaryService } from '../common/services/cloudinary.service';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { PostReport } from './entities/post-report.entity';
     ]),
   ],
   controllers: [FeedController],
-  providers: [FeedService],
+  providers: [FeedService, CloudinaryService],
   exports: [FeedService],
 })
 export class FeedModule {}

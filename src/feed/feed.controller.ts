@@ -25,16 +25,27 @@ import {
   GetCommentsDto,
 } from './dto/feed-interactions.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { CloudinaryService, SignedUploadParams } from '../common/services/cloudinary.service';
 
 @ApiTags('Feed')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('api/v1/feed')
 export class FeedController {
-  constructor(private readonly feedService: FeedService) {}
+  constructor(
+    private readonly feedService: FeedService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   // POST ENDPOINTS
-  @Post('posts')
+  @Get('posts/media-upload-params')
+  @ApiOperation({ summary: 'Get media upload parameters for posts' })
+  @ApiResponse({ status: 200, description: 'Upload parameters retrieved successfully' })
+  async getPostsUploadParams(): Promise<SignedUploadParams> {
+    return this.cloudinaryService.generateSignedUploadParams('paan-posts');
+  }
+
+  @Post()
   @ApiOperation({ summary: 'Create a new post' })
   @ApiResponse({ status: 201, description: 'Post created successfully' })
   async createPost(@Body() createPostDto: CreatePostDto, @Request() req) {
@@ -79,6 +90,13 @@ export class FeedController {
   }
 
   // COMMENT ENDPOINTS
+  @Get('comments/media-upload-params')
+  @ApiOperation({ summary: 'Get media upload parameters for comments' })
+  @ApiResponse({ status: 200, description: 'Upload parameters retrieved successfully' })
+  async getCommentsUploadParams(): Promise<SignedUploadParams> {
+    return this.cloudinaryService.generateSignedUploadParams('paan-comments');
+  }
+
   @Post('posts/:postId/comments')
   @ApiOperation({ summary: 'Create a comment on a post' })
   @ApiResponse({ status: 201, description: 'Comment created successfully' })
