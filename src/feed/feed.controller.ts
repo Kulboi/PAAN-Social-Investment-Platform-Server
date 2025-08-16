@@ -153,7 +153,7 @@ export class FeedController {
     return this.feedService.createLike(createLikeDto, postId, req.user.id);
   }
 
-  @Delete('posts/:postId/like')
+  @Delete('posts/:postId/unlike')
   @ApiOperation({ summary: 'Unlike a post' })
   @ApiResponse({ status: 200, description: 'Post unliked successfully' })
   async unlikePost(@Param('postId') postId: string, @Request() req) {
