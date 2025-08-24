@@ -16,6 +16,7 @@ import { FeedModule } from './feed/feed.module';
 
 import { AppController } from './app.controller';
 import { FollowModule } from './follow/follow.module';
+import { InvestmentsModule } from './investments/investments.module';
 
 @Module({
   imports: [
@@ -40,7 +41,8 @@ import { FollowModule } from './follow/follow.module';
     WalletModule,
     FeedModule,
     FollowModule,
-    EventEmitterModule.forRoot()
+    EventEmitterModule.forRoot(),
+    InvestmentsModule
   ],
   providers: [JwtStrategy, RtStrategy],
   controllers: [AppController],
