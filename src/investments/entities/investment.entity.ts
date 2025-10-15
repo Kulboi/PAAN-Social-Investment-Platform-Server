@@ -2,12 +2,13 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToOne,
   JoinColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 
 import { User } from '../../user/entities/user.entity';
+import { InvestmentCategory } from './investment-categories.entity';
 import { InvestmentTransaction } from './investment-transaction.entity';
 
 enum InvestmentRiskLevel {
@@ -35,13 +36,16 @@ export class Investment {
   description: string;
 
   @Column()
-  owner: User;
+  owner_id: string;
 
-  @Column()
+ @Column('text', { array: true })
   images: string[];
 
+  @ManyToOne(() => InvestmentCategory, (category) => category.investments, { eager: false })
+  category: InvestmentCategory;
+
   @Column()
-  category: string;
+  categoryId: number;
 
   @Column()
   start_date: string;
@@ -100,5 +104,6 @@ export class Investment {
   updatedAt: Date;
 
   @OneToMany(() => InvestmentTransaction, (transaction) => transaction.investment)
+  @JoinColumn()
   transactions: InvestmentTransaction[];
 }

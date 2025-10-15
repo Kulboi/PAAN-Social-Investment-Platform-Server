@@ -23,9 +23,6 @@ export class InvestmentTransaction {
   id: number;
 
   @Column()
-  investment: Investment;
-
-  @Column()
   userId: number;
 
   @Column()
@@ -50,12 +47,12 @@ export class InvestmentTransaction {
   paymentMethod: string;
 
   @Column()
-  user_debited: User;
+  user_debited_id: string;
 
   @Column()
-  user_credited: User;
+  user_credited_id: string;
 
   @ManyToOne(() => Investment, (investment) => investment.transactions)
   @JoinColumn()
-  investmentId: Investment;
+  investment: Investment;
 }
