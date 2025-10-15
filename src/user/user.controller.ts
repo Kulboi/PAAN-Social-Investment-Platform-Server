@@ -23,23 +23,116 @@ export class UserController {
 
   @Get('me')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Fetches user data' })
-  @ApiResponse({ status: 200, type: UserResponseDto })
+  @ApiOperation({ 
+    summary: 'Get user profile',
+    description: 'Retrieves the authenticated user\'s profile information including personal details, verification status, and credentials.'
+  })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'User profile retrieved successfully',
+    type: UserResponseDto 
+  })
+  @ApiResponse({ 
+    status: 401, 
+    description: 'Unauthorized - Invalid or missing authentication token' 
+  })
+  @ApiResponse({ 
+    status: 404, 
+    description: 'User not found' 
+  })
   getProfile(@Req() req): Promise<UserResponseDto> {
     return this.userService.getUser(req.user.userId);
   }
 
   @Patch('me')
+  @ApiBearerAuth()
+  @ApiOperation({ 
+    summary: 'Update user profile',
+    description: 'Updates the authenticated user\'s profile information. All fields are optional and only provided fields will be updated.'
+  })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'User profile updated successfully',
+    type: UserResponseDto 
+  })
+  @ApiResponse({ 
+    status: 400, 
+    description: 'Invalid input data or validation errors' 
+  })
+  @ApiResponse({ 
+    status: 401, 
+    description: 'Unauthorized - Invalid or missing authentication token' 
+  })
+  @ApiResponse({ 
+    status: 404, 
+    description: 'User not found' 
+  })
   updateProfile(@Req() req, @Body() dto: UpdateUserDto) {
     return this.userService.updateUser(req.user.userId, dto);
   }
 
   @Patch('me/change-password')
+  @ApiBearerAuth()
+  @ApiOperation({ 
+    summary: 'Change user password',
+    description: 'Changes the authenticated user\'s password. Requires current password for verification and a new password that meets minimum length requirements.'
+  })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Password changed successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'Password changed successfully'
+        }
+      }
+    }
+  })
+  @ApiResponse({ 
+    status: 400, 
+    description: 'Invalid input data, current password incorrect, or new password validation failed' 
+  })
+  @ApiResponse({ 
+    status: 401, 
+    description: 'Unauthorized - Invalid or missing authentication token' 
+  })
+  @ApiResponse({ 
+    status: 404, 
+    description: 'User not found' 
+  })
   changePassword(@Req() req, @Body() dto: ChangePasswordDto) {
     return this.userService.changePassword(req.user.userId, dto);
   }
 
   @Delete('me')
+  @ApiBearerAuth()
+  @ApiOperation({ 
+    summary: 'Delete user account',
+    description: 'Permanently deletes the authenticated user\'s account and all associated data. This action cannot be undone.'
+  })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'User account deleted successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          example: 'User account deleted successfully'
+        }
+      }
+    }
+  })
+  @ApiResponse({ 
+    status: 401, 
+    description: 'Unauthorized - Invalid or missing authentication token' 
+  })
+  @ApiResponse({ 
+    status: 404, 
+    description: 'User not found' 
+  })
   deleteAccount(@Req() req) {
     return this.userService.deleteUser(req.user.userId);
   }
