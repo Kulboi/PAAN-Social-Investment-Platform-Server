@@ -22,7 +22,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { InvestmentStatus } from './dto/create-investment.dto';
 
 @ApiTags('Investments')
-@Controller('investments')
+@Controller('api/v1/investments')
 @UseGuards(JwtAuthGuard)
 export class InvestmentsController {
   constructor(private readonly investmentsService: InvestmentsService) {}

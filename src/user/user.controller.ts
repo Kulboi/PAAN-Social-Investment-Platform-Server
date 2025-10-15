@@ -7,12 +7,14 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 
 import { UserService } from './user.service';
 
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 import { UpdateUserDto, ChangePasswordDto } from './dto/user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Controller('api/v1/users')
 @UseGuards(JwtAuthGuard)
@@ -20,7 +22,10 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('me')
-  getProfile(@Req() req) {
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Fetches user data' })
+  @ApiResponse({ status: 200, type: UserResponseDto })
+  getProfile(@Req() req): Promise<UserResponseDto> {
     return this.userService.getUser(req.user.userId);
   }
 
