@@ -15,16 +15,16 @@ import { ResendOTPDto, UserVerificationDto } from './dto/user-verification-dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('google')
+  @Get('google/callback')
   @ApiOperation({ summary: 'Google login' })
-  @ApiBody({ 
-    type: GoogleAuthDTO,
-    schema: {
-      properties: {
-        token: { type: 'string' },
-      },
-    },
-  })
+  // @ApiBody({ 
+  //   type: GoogleAuthDTO,
+  //   schema: {
+  //     properties: {
+  //       token: { type: 'string' },
+  //     },
+  //   },
+  // })
   @ApiResponse({ 
     status: 200, 
     type: Object,

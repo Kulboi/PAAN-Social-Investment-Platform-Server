@@ -165,6 +165,10 @@ export class AuthService {
     return userLogin;
   }
 
+  async googleAuthCallback() {
+    return { message: 'Google auth successful' };
+  }
+
   async googleAuth(dto: GoogleAuthDTO) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
     if (user) {
