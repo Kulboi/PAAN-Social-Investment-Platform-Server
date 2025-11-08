@@ -17,6 +17,7 @@ import { FeedModule } from './feed/feed.module';
 import { AppController } from './app.controller';
 import { FollowModule } from './follow/follow.module';
 import { InvestmentsModule } from './investments/investments.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -42,7 +43,8 @@ import { InvestmentsModule } from './investments/investments.module';
     FeedModule,
     FollowModule,
     EventEmitterModule.forRoot(),
-    InvestmentsModule
+    InvestmentsModule,
+    NotificationsModule
   ],
   providers: [JwtStrategy, RtStrategy],
   controllers: [AppController],

@@ -16,6 +16,7 @@ import { PostLike } from '../../feed/entities/post-like.entity';
 import { PostComment } from '../../feed/entities/post-comment.entity';
 import { PostShare } from '../../feed/entities/post-share.entity';
 import { PostReport } from '../../feed/entities/post-report.entity';
+import { Notification } from '../../notifications/entities/notifications.entity';
 
 import { AuthTypes, GenderTypes, UserTypes } from '../user.enums';
 
@@ -122,4 +123,7 @@ export class User {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   role?: string | UserTypes;
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[];
 }
