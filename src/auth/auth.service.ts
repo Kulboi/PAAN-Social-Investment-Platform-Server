@@ -19,6 +19,7 @@ import { Verification } from './entities/verification.entity';
 import { Notification } from 'src/notifications/entities/notifications.entity';
 
 import { AuthTypes } from '../user/user.enums';
+import { NotificationTypes } from 'src/notifications/notifications.enum';
 
 import { generateOTP } from '../common/utils/functions';
 
@@ -81,6 +82,7 @@ export class AuthService {
         title: 'Welcome to Paan!',
         description:
           'Thank you for registering. Please verify your email to get started.',
+        type: NotificationTypes.WELCOME,
       });
       await this.notificationRepo.save(notification);
 
