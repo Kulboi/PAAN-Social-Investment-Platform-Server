@@ -1,4 +1,4 @@
-import { Controller, Post, Patch, Body, UseGuards, Req, Get } from '@nestjs/common';
+import { Controller, Post, Patch, Body, UseGuards, Req, Get, HttpCode } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
@@ -29,8 +29,10 @@ export class AuthController {
     status: 200, 
     type: Object,
   })
-  async googleLogin(@Body() payload: GoogleAuthDTO): Promise<any> {
-    return await this.authService.googleAuth(payload);
+  async googleLogin(@Req() payload): Promise<any> {
+    console.log({googlePayload: payload});
+    // return await this.authService.googleAuth(payload);
+    return { data: { access_token: 'test', refresh_token: 'test' } };
   }
 
   @Post('register')
@@ -64,6 +66,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @HttpCode(200)
   @ApiOperation({ summary: 'Login user' })
   @ApiResponse({ 
     status: 200, 

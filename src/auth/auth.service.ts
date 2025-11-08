@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
   ConflictException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,8 +14,9 @@ import { Wallet } from './../wallet/entities/wallet.entity';
 
 import { MailerService } from '../common/utils/mailer.service';
 
-import { User, AuthType } from '../user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 import { Verification } from './entities/verification.entity';
+import { AuthTypes } from '../user/user.enums';
 
 import { generateOTP } from '../common/utils/functions';
 
@@ -56,21 +58,23 @@ export class AuthService {
     // save user
     await this.userRepo.save(user);
 
-    // generate otp
-    const otp = generateOTP();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    if(user.role !== 'ADMIN') {
+      // generate otp
+      const otp = generateOTP();
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
-    // save verification
-    const verification = this.verificationRepo.create({
-      user,
-      otp,
-      expiresAt,
-    });
-    await this.verificationRepo.save(verification);
-    await this.mailerService.sendOTP(user.email, otp);
+      // save verification
+      const verification = this.verificationRepo.create({
+        user,
+        otp,
+        expiresAt,
+      });
+      await this.verificationRepo.save(verification);
+      await this.mailerService.sendOTP(user.email, otp);
+    }
 
     return { 
-      message: 'User registered successfully and OTP sent',
+      message: `${user.role === 'ADMIN' ? 'Admin' : 'User'} registered successfully${user.role !== 'ADMIN' ? ' and verification sent to email' : ''}`,
       data: { 
         first_name: user.first_name,
         last_name: user.last_name,
@@ -119,7 +123,7 @@ export class AuthService {
     await this.walletRepo.save(wallet);
 
     // sign in
-    const userLogin = await this.signInLogic(user);
+    const userLogin = await this.encryptUserTokensAndSaveHash(user);
 
     return { 
       ...userLogin, 
@@ -127,7 +131,7 @@ export class AuthService {
     };
   }
 
-  private async signInLogic(user: User) {
+  private async encryptUserTokensAndSaveHash(user: User) {
     const payload = { sub: user.id, email: user.email };
     const token = this.jwtService.sign(payload, {
       expiresIn: this.jwtExpirationTime,
@@ -148,21 +152,21 @@ export class AuthService {
         access_token: token,
         refresh_token: refreshToken,
       },
-      message: 'Login successful',
     };
   }
 
   async login(dto: LoginDto) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
 
-    if(user.auth_type === AuthType.EMAIL) {
+    if(!user) throw new NotFoundException('User not found');
+
+    if(user.auth_type === AuthTypes.EMAIL) {
       if (!user || !(await bcrypt.compare(dto.password, user.password))) {
-        throw new UnauthorizedException('Invalid credentials');
+        throw new BadRequestException('Invalid credentials');
       }
     }
 
-    const userLogin = await this.signInLogic(user);
-    return userLogin;
+    return this.encryptUserTokensAndSaveHash(user);
   }
 
   async googleAuthCallback() {
@@ -172,7 +176,7 @@ export class AuthService {
   async googleAuth(dto: GoogleAuthDTO) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
     if (user) {
-      const userLogin = await this.signInLogic(user);
+      const userLogin = await this.encryptUserTokensAndSaveHash(user);
       return userLogin;
     } else {
       const newUser = this.userRepo.create({
@@ -181,12 +185,12 @@ export class AuthService {
         email: dto.email,
         profile_image: dto.profile_image,
         is_verified: true,
-        auth_type: AuthType.SOCIAL,
+        auth_type: AuthTypes.SOCIAL,
         google_auth_details: JSON.stringify(dto),
       });
 
       await this.userRepo.save(newUser);
-      const userLogin = await this.signInLogic(newUser);
+      const userLogin = await this.encryptUserTokensAndSaveHash(newUser);
       return {
         data: {
           ...userLogin.data,

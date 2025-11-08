@@ -9,6 +9,8 @@ import {
   IsArray
 } from 'class-validator';
 
+import { GenderTypes, UserTypes } from '../user.enums';
+
 export class UpdateUserDto {
   @IsOptional()
   @IsString()
@@ -56,8 +58,8 @@ export class UpdateUserDto {
   date_of_birth?: Date;
 
   @IsOptional()
-  @IsEnum(["MALE", "FEMALE"], { message: 'Gender must be either "MALE" or "FEMALE"' })
-  gender?: "MALE" | "FEMALE";
+  @IsEnum(GenderTypes, { message: 'Gender must be either "MALE" or "FEMALE"' })
+  gender?: GenderTypes;
 
   @IsOptional()
   @IsString()
@@ -69,6 +71,10 @@ export class UpdateUserDto {
     nin?: string,
     bvn?: string
   }
+
+  @IsOptional()
+  @IsEnum(UserTypes, { message: 'Role must be either "USER" or "ADMIN"' })
+  role?: UserTypes
 }
 
 export class ChangePasswordDto {

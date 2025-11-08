@@ -17,15 +17,7 @@ import { PostComment } from '../../feed/entities/post-comment.entity';
 import { PostShare } from '../../feed/entities/post-share.entity';
 import { PostReport } from '../../feed/entities/post-report.entity';
 
-export enum AuthType {
-  SOCIAL = 'SOCIAL',
-  EMAIL = 'EMAIL',
-}
-
-export enum Gender {
-  MALE = 'MALE',
-  FEMALE = 'FEMALE',
-}
+import { AuthTypes, GenderTypes, UserTypes } from '../user.enums';
 
 @Entity({ name: 'users' })
 export class User {
@@ -71,9 +63,9 @@ export class User {
   @Column({ 
     nullable: true,
     type: 'enum',
-    enum: Gender
+    enum: GenderTypes
   })
-  gender: Gender;
+  gender: GenderTypes;
 
   @Column({ nullable: true })
   occupation: string;
@@ -97,10 +89,10 @@ export class User {
   @Column({
     nullable: false,
     type: 'enum',
-    enum: AuthType,
+    enum: AuthTypes,
     default: 'EMAIL',
   })
-  auth_type: AuthType;
+  auth_type: AuthTypes;
 
   @Column({ nullable: true, type: 'json' })
   google_auth_details: {};
@@ -127,4 +119,7 @@ export class User {
 
   @OneToMany(() => PostReport, (report) => report.reporter)
   reports: PostReport[];
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  role?: string | UserTypes;
 }

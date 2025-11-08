@@ -4,6 +4,7 @@ export class RegisterDto {
   @IsNotEmpty() first_name: string;
   @IsNotEmpty() last_name: string;
   @IsEmail() email: string;
+  @IsOptional() role?: string;
   @MinLength(6) password: string;
 }
 
