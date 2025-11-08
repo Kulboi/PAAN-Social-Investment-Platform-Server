@@ -2,6 +2,8 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 
 import { User } from '../../user/entities/user.entity';
 
+import { NotificationTypes } from '../notifications.enum';
+
 @Entity({ name: 'notifications' })
 export class Notification {
   @PrimaryGeneratedColumn('uuid')
@@ -14,9 +16,11 @@ export class Notification {
   description: string;
 
   @Column()
-  type: string;
+  type: NotificationTypes;
 
-  @Column()
+  @Column({
+    default: false,
+  })
   read: boolean;
 
   @Column({
