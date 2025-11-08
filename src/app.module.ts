@@ -13,11 +13,11 @@ import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
 import { WalletModule } from './wallet/wallet.module';
 import { FeedModule } from './feed/feed.module';
-
-import { AppController } from './app.controller';
 import { FollowModule } from './follow/follow.module';
 import { InvestmentsModule } from './investments/investments.module';
 import { NotificationsModule } from './notifications/notifications.module';
+
+import { AppController } from './app.controller';
 
 @Module({
   imports: [

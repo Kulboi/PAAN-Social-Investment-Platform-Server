@@ -10,9 +10,10 @@ import { AuthController } from './auth.controller';
 import { User } from 'src/user/entities/user.entity';
 import { Verification } from 'src/auth/entities/verification.entity';
 import { Wallet } from 'src/wallet/entities/wallet.entity';
+import { Notification } from 'src/notifications/entities/notifications.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Verification, Wallet])],
+  imports: [TypeOrmModule.forFeature([User, Verification, Wallet, Notification])],
   controllers: [AuthController],
   providers: [AuthService, MailerService, JwtService],
 })

@@ -16,6 +16,8 @@ import { MailerService } from '../common/utils/mailer.service';
 
 import { User } from '../user/entities/user.entity';
 import { Verification } from './entities/verification.entity';
+import { Notification } from 'src/notifications/entities/notifications.entity';
+
 import { AuthTypes } from '../user/user.enums';
 
 import { generateOTP } from '../common/utils/functions';
@@ -36,10 +38,13 @@ export class AuthService {
 
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
-    @InjectRepository(Verification) private readonly verificationRepo: Repository<Verification>,
+    @InjectRepository(Verification)
+    private readonly verificationRepo: Repository<Verification>,
     @InjectRepository(Wallet) private readonly walletRepo: Repository<Wallet>,
+    @InjectRepository(Notification)
+    private readonly notificationRepo: Repository<Notification>,
     private readonly mailerService: MailerService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -58,7 +63,7 @@ export class AuthService {
     // save user
     await this.userRepo.save(user);
 
-    if(user.role !== 'ADMIN') {
+    if (user.role !== 'ADMIN') {
       // generate otp
       const otp = generateOTP();
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
@@ -70,16 +75,25 @@ export class AuthService {
         expiresAt,
       });
       await this.verificationRepo.save(verification);
+      
+      const notification = this.notificationRepo.create({
+        user,
+        title: 'Welcome to Paan!',
+        description:
+          'Thank you for registering. Please verify your email to get started.',
+      });
+      await this.notificationRepo.save(notification);
+
       await this.mailerService.sendOTP(user.email, otp);
     }
 
-    return { 
+    return {
       message: `${user.role === 'ADMIN' ? 'Admin' : 'User'} registered successfully${user.role !== 'ADMIN' ? ' and verification sent to email' : ''}`,
-      data: { 
+      data: {
         first_name: user.first_name,
         last_name: user.last_name,
-        email: user.email 
-      }, 
+        email: user.email,
+      },
     };
   }
 
@@ -125,9 +139,9 @@ export class AuthService {
     // sign in
     const userLogin = await this.encryptUserTokensAndSaveHash(user);
 
-    return { 
-      ...userLogin, 
-      message: 'User verified successfully' 
+    return {
+      ...userLogin,
+      message: 'User verified successfully',
     };
   }
 
@@ -148,7 +162,7 @@ export class AuthService {
     await this.userRepo.update(user.id, { hashedRt });
 
     return {
-      data: { 
+      data: {
         access_token: token,
         refresh_token: refreshToken,
       },
@@ -158,9 +172,9 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
 
-    if(!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException('User not found');
 
-    if(user.auth_type === AuthTypes.EMAIL) {
+    if (user.auth_type === AuthTypes.EMAIL) {
       if (!user || !(await bcrypt.compare(dto.password, user.password))) {
         throw new BadRequestException('Invalid credentials');
       }
@@ -208,25 +222,27 @@ export class AuthService {
     const rtMatches = await bcrypt.compare(refreshToken, user.hashedRt);
     if (!rtMatches) throw new ForbiddenException('Invalid Refresh Token');
 
-    const newAccessToken = this.jwtService.sign({ sub: user.id },
-      { 
-        expiresIn: this.jwtExpirationTime, 
-        secret: process.env.JWT_SECRET 
+    const newAccessToken = this.jwtService.sign(
+      { sub: user.id },
+      {
+        expiresIn: this.jwtExpirationTime,
+        secret: process.env.JWT_SECRET,
       },
     );
-    const newRefreshToken = this.jwtService.sign({ sub: user.id },
-      { 
-        secret: process.env.REFRESH_TOKEN_SECRET, 
-        expiresIn: this.refreshTokenExpirationTime 
+    const newRefreshToken = this.jwtService.sign(
+      { sub: user.id },
+      {
+        secret: process.env.REFRESH_TOKEN_SECRET,
+        expiresIn: this.refreshTokenExpirationTime,
       },
     );
 
     const hashedRt = await bcrypt.hash(newRefreshToken, 10);
     await this.userRepo.update(user.id, { hashedRt });
 
-    return { 
-      access_token: newAccessToken, 
-      refresh_token: newRefreshToken 
+    return {
+      access_token: newAccessToken,
+      refresh_token: newRefreshToken,
     };
   }
 
