@@ -11,6 +11,7 @@ import { User } from './entities/user.entity';
 
 import { UpdateUserDto, ChangePasswordDto } from './dto/user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
+import { UserTypes } from './user.enums';
 
 @Injectable()
 export class UserService {
@@ -44,6 +45,7 @@ export class UserService {
         nin: user?.credentials?.nin,
         bvn: user?.credentials?.bvn,
       },
+      role: user.role as UserTypes,
     };
   }
 

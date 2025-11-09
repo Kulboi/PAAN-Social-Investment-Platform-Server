@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { UserTypes } from '../user.enums';
+
 export class UserResponseDto {
   @ApiProperty({ description: 'Unique user ID' })
   id: string;
@@ -48,4 +50,7 @@ export class UserResponseDto {
     nin: string,
     bvn: string
   };
+
+  @ApiProperty({ description: 'user role' })
+  role: UserTypes;
 }
