@@ -39,6 +39,10 @@ export class MailerService {
     return await this.brevoService.sendEmail(to, 'Your PAAN Circle Verification OTP', `<h3>Your OTP is ${otp}</h3>`);
   }
 
+  async sendForgotPasswordRequestToken(to: string, token: string) {
+    return await this.brevoService.sendEmail(to, 'PAAN Circle Forgot Password Verification Token', `<h3>Your token is ${token}</h3>`);
+  }
+
   async sendDepositSuccessNotification({to, reference, balance}: DepositSuccessNotification) {
     return await this.brevoService.sendEmail(
       to, 

@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { Wallet } from './../wallet/entities/wallet.entity';
+import * as crypto from 'crypto';
 
 import { MailerService } from '../common/utils/mailer.service';
 
@@ -252,9 +253,8 @@ export class AuthService {
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
     if (!user) throw new NotFoundException('User not found');
 
-    const token = Math.random().toString(36).substring(0, 6);
+    const token = crypto.randomBytes(3).toString('hex'); // 6 hex characters (alphanumeric: 0-9, a-f)
     this.mockTokens.set(token, user.email);
-    await this.mailerService.sendOTP(user.email, token);
 
     return { description: 'Reset token sent to email' };
   }
