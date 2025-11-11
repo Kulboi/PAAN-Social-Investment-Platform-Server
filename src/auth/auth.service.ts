@@ -256,6 +256,8 @@ export class AuthService {
     const token = crypto.randomBytes(3).toString('hex'); // 6 hex characters (alphanumeric: 0-9, a-f)
     this.mockTokens.set(token, user.email);
 
+    await this.mailerService.sendForgotPasswordRequestToken(user.email, token);
+
     return { description: 'Reset token sent to email' };
   }
 
