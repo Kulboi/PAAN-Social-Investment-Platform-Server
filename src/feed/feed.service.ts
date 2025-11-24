@@ -206,15 +206,28 @@ export class FeedService {
       throw new BadRequestException('User has already liked this post');
     }
     const like = this.likeRepository.create({ ...createLikeDto, postId, userId });
-    return await this.likeRepository.save(like);
+    await this.likeRepository.save(like);
+
+    post.likesCount += 1;
+    await this.postRepository.save(post);
+
+    return like;
   }
 
-  async removeLike(postId: string, userId: string): Promise<void> {
+  async removeLike(postId: string, userId: string): Promise<PostLike> {
     const like = await this.likeRepository.findOneBy({ postId, userId });
     if (!like) {
       throw new NotFoundException(`Like not found for post ID ${postId} and user ID ${userId}`);
     }
-    await this.likeRepository.remove(like);
+    const unlike = await this.likeRepository.remove(like);
+
+    const post = await this.postRepository.findOneBy({ id: postId });
+    if (post) {
+      post.likesCount = Math.max(0, post.likesCount - 1);
+      await this.postRepository.save(post);
+    }
+  
+    return unlike;
   }
 
   async isPostLikedByUser(postId: string, userId: string): Promise<boolean> {
