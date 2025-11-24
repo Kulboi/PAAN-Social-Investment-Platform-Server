@@ -48,11 +48,11 @@ export class UserService {
     };
   }
 
-  async updateUser(id: string, dto: UpdateUserDto) {
+  async updateUser(id: string, payload: UpdateUserDto): Promise<{ message: string; data: UserResponseDto }> {
     const user = await this.userRepo.findOne({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 
-    Object.assign(user, dto);
+    Object.assign(user, payload);
     await this.userRepo.save(user);
 
     return {
@@ -70,6 +70,8 @@ export class UserService {
         gender: user.gender,
         date_of_birth: user.date_of_birth,
         profile_image: user.profile_image,
+        is_verified: user.is_verified,
+        role: user.role as UserTypes,
         credentials: {
           nin: user?.credentials?.nin,
           bvn: user?.credentials?.bvn,

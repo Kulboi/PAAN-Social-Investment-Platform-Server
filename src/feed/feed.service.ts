@@ -217,6 +217,11 @@ export class FeedService {
     await this.likeRepository.remove(like);
   }
 
+  async isPostLikedByUser(postId: string, userId: string): Promise<boolean> {
+    const like = await this.likeRepository.findOneBy({ postId, userId });
+    return !!like;
+  }
+
   async createShare(createShareDto: CreateShareDto, postId: string, userId: string): Promise<PostShare> {
     const post = await this.postRepository.findOneBy({ id: postId });
     if (!post) {

@@ -161,6 +161,15 @@ export class FeedController {
     return { message: 'Post unliked successfully' };
   }
 
+  // IS POST LIKED ENDPOINT
+  @Get('posts/:postId/is-liked')
+  @ApiOperation({ summary: 'Check if the authenticated user has liked a post' })
+  @ApiResponse({ status: 200, description: 'Like status retrieved successfully' })
+  async isPostLiked(@Param('postId') postId: string, @Request() req) {
+    const isLiked = await this.feedService.isPostLikedByUser(postId, req.user.id);
+    return { isLiked };
+  }
+
   // SHARE ENDPOINTS
   @Post('posts/:postId/share')
   @ApiOperation({ summary: 'Share a post' })
