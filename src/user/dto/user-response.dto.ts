@@ -3,6 +3,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UserTypes } from '../user.enums';
 
 export class UserResponseDto {
+  @ApiProperty({ description: 'Unique user ID' })
+  id: string;
+
   @ApiProperty({ description: 'user first name' })
   first_name: string;
 

@@ -27,6 +27,7 @@ export class UserService {
     if (!user) throw new NotFoundException('User not found');
 
     return {
+      id: user.id,
       first_name: user.first_name,
       middle_name: user.middle_name,
       last_name: user.last_name,
@@ -58,6 +59,7 @@ export class UserService {
     return {
       message: 'User updated successfully',
       data: {
+        id: user.id,
         first_name: user.first_name,
         middle_name: user.middle_name,
         last_name: user.last_name,
