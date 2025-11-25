@@ -274,8 +274,14 @@ export class AuthService {
     return { description: 'Password reset successful' };
   }
 
-  async logout(userId: number) {
-    await this.userRepo.update(userId, { hashedRt: null });
-    return { description: 'Logout successful' };
+  async logout(userId: string) {
+    try {
+      console.log(`userId in logout: ${userId}`);
+      await this.userRepo.update(userId, { hashedRt: null });
+      return { description: 'Logout successful' };
+    } catch (error) {
+      console.error('Error during logout:', error);
+      throw new NotFoundException('User not found');
+    }
   }
 }
