@@ -276,11 +276,9 @@ export class AuthService {
 
   async logout(userId: string) {
     try {
-      console.log(`userId in logout: ${userId}`);
       await this.userRepo.update(userId, { hashedRt: null });
       return { description: 'Logout successful' };
     } catch (error) {
-      console.error('Error during logout:', error);
       throw new NotFoundException('User not found');
     }
   }
