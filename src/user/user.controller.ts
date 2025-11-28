@@ -57,7 +57,7 @@ export class UserController {
     description: 'User not found',
   })
   getProfile(@Req() req): Promise<UserResponseDto> {
-    return this.userService.getUser(req.user.userId);
+    return this.userService.getUser(req.user.id);
   }
 
   @Patch('me')
@@ -85,7 +85,7 @@ export class UserController {
     description: 'User not found',
   })
   updateProfile(@Req() req, @Body() dto: UpdateUserDto) {
-    return this.userService.updateUser(req.user.userId, dto);
+    return this.userService.updateUser(req.user.id, dto);
   }
 
   @Get('me/image-upload-params')
@@ -132,7 +132,7 @@ export class UserController {
     description: 'User not found',
   })
   changePassword(@Req() req, @Body() dto: ChangePasswordDto) {
-    return this.userService.changePassword(req.user.userId, dto);
+    return this.userService.changePassword(req.user.id, dto);
   }
 
   @Delete('me')
@@ -164,6 +164,6 @@ export class UserController {
     description: 'User not found',
   })
   deleteAccount(@Req() req) {
-    return this.userService.deleteUser(req.user.userId);
+    return this.userService.deleteUser(req.user.id);
   }
 }

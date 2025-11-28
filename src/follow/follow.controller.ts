@@ -34,7 +34,7 @@ export class FollowController {
     type: [Follow],
   })
   getFollows(@Req() req): Promise<any> {
-    return this.followService.getFollowing(req.user.userId);
+    return this.followService.getFollowing(req.user.id);
   }
 
   @Get('followers')
@@ -45,6 +45,6 @@ export class FollowController {
     type: [Follow],
   })
   getFollowers(@Req() req): Promise<any> {
-    return this.followService.getFollowers(req.user.userId);
+    return this.followService.getFollowers(req.user.id);
   }
 }
