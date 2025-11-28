@@ -150,7 +150,6 @@ export class AuthService {
 
   private async encryptUserTokensAndSaveHash(user: User) {
     const payload = { sub: user.id, email: user.email };
-    console.log({payload});
     const token = this.jwtService.sign(payload, {
       expiresIn: this.jwtExpirationTime,
       secret: process.env.JWT_SECRET,
@@ -175,7 +174,6 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
-    console.log({user});
 
     if (!user) throw new NotFoundException('User not found');
 
