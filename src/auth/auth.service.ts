@@ -30,6 +30,7 @@ import {
   GoogleAuthDTO,
   ForgotPasswordDto,
   ResetPasswordDto,
+  RefreshTokenDto,
 } from './dto/auth.dto';
 
 @Injectable()
@@ -218,11 +219,11 @@ export class AuthService {
     }
   }
 
-  async refreshTokens(userId: string, refreshToken: string) {
-    const user = await this.userRepo.findOne({ where: { id: userId } });
+  async refreshTokens(payload: RefreshTokenDto) {
+    const user = await this.userRepo.findOne({ where: { id: payload.userId } });
     if (!user) throw new ForbiddenException('Access Denied');
 
-    const rtMatches = await bcrypt.compare(refreshToken, user.hashedRt);
+    const rtMatches = await bcrypt.compare(payload.refreshToken, user.hashedRt);
     if (!rtMatches) throw new ForbiddenException('Invalid Refresh Token');
 
     const newAccessToken = this.jwtService.sign(

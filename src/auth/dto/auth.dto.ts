@@ -30,3 +30,13 @@ export class ResetPasswordDto {
   @IsNotEmpty() token: string;
   @MinLength(6) newPassword: string;
 }
+
+export class ChangePasswordDto {
+  @IsNotEmpty() currentPassword: string;
+  @MinLength(6) newPassword: string;
+}
+
+export class RefreshTokenDto {
+  @IsNotEmpty() userId: string;
+  @IsNotEmpty() refreshToken: string;
+}

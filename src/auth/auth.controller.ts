@@ -84,8 +84,8 @@ export class AuthController {
     type: Object,
   })
   refreshToken(@Req() req) {
-    const { userId, refreshToken } = req.user;
-    return this.authService.refreshTokens(userId, refreshToken);
+    const { id, refreshToken } = req.user;
+    return this.authService.refreshTokens({ userId: id, refreshToken });
   }
 
   @Post('forgot-password')
