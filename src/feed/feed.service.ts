@@ -76,14 +76,13 @@ export class FeedService {
       order: { createdAt: 'DESC' },
     });
 
-    // Transform posts to include author information
     return posts.map(post => this.transformPost(post));
   }
 
   async getPost(id: string): Promise<PostResponseDto> {
     const post = await this.postRepository.findOne({
       where: { id },
-      relations: ['author'],
+      relations: ['author', 'media'],
     });
     
     if (!post) {
