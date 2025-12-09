@@ -104,7 +104,7 @@ export class FeedService {
       profileImage: null,
     };
 
-    const media = post.media.map(mediaItem => ({
+    const media = post.media?.map(mediaItem => ({
       id: mediaItem.id,
       mediaType: mediaItem.mediaType,
       url: mediaItem.url,
