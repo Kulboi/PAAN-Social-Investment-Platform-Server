@@ -18,6 +18,7 @@ import { InvestmentsModule } from './investments/investments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 
 import { AppController } from './app.controller';
+import { BackOfficeModule } from './back-office/back-office.module';
 
 @Module({
   imports: [
@@ -44,7 +45,8 @@ import { AppController } from './app.controller';
     FollowModule,
     EventEmitterModule.forRoot(),
     InvestmentsModule,
-    NotificationsModule
+    NotificationsModule,
+    BackOfficeModule
   ],
   providers: [JwtStrategy, RtStrategy],
   controllers: [AppController],
