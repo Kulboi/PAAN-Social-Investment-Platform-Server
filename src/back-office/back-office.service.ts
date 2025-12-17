@@ -48,4 +48,8 @@ export class BackOfficeService {
       is_active: createdBackOfficeUser.is_active,
     };
   }
+
+  async loginBackOfficeUser() {
+    // To be implemented
+  }
 }
