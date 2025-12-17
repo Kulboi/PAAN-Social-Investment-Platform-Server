@@ -9,7 +9,7 @@ import {
 import BackOfficeUserRoleTypes from 'src/back-office/enums/back-office-user-role-types.enum';
 import { GenderTypes } from 'src/user/user.enums';
 
-export class CreateBackOfficeUserDto {
+export class CreateBackOfficeUserRequestDto {
   @IsNotEmpty()
   @IsString()
   first_name: string;
@@ -33,7 +33,7 @@ export class CreateBackOfficeUserDto {
 
   @IsOptional()
   @IsEnum(BackOfficeUserRoleTypes)
-  user_type?: BackOfficeUserRoleTypes;
+  role?: BackOfficeUserRoleTypes;
 
   @IsOptional()
   @IsEnum(GenderTypes)

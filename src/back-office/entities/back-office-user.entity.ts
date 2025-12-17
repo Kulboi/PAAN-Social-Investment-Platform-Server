@@ -1,5 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
+import BackOfficeUserRoleTypes from 'src/back-office/enums/back-office-user-role-types.enum';
+
 @Entity()
 export class BackOfficeUser {
   @PrimaryGeneratedColumn('uuid')
@@ -20,7 +22,11 @@ export class BackOfficeUser {
   @Column()
   password: string;
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: BackOfficeUserRoleTypes,
+    default: BackOfficeUserRoleTypes.ADMIN,
+  })
   role: string;
 
   @Column({ nullable: true })
