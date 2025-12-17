@@ -1,17 +1,23 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 import { BackOfficeUser } from './entities/back-office-user.entity';
 
 import { CreateBackOfficeUserRequestDto } from './dto/create-back-office-user-request.dto';
+import { LoginBackOfficeUserRequestDto } from './dto/login-back-office-user-request.dto';
 
 @Injectable()
 export class BackOfficeService {
+  private jwtExpirationTime = '1h';
+  private refreshTokenExpirationTime = '1d';
+
   constructor(
     @InjectRepository(BackOfficeUser)
     private readonly backOfficeUserRepo: Repository<BackOfficeUser>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async createBackOfficeUser(payload: CreateBackOfficeUserRequestDto) {
@@ -49,7 +55,42 @@ export class BackOfficeService {
     };
   }
 
-  async loginBackOfficeUser() {
-    // To be implemented
+  async loginBackOfficeUser(payload: LoginBackOfficeUserRequestDto) {
+    const findBackOfficeUser = await this.backOfficeUserRepo.findOneBy({
+      email: payload.email,
+    });
+
+    if (!findBackOfficeUser) throw new NotFoundException('User not found');
+
+    const isPasswordValid = await bcrypt.compare(
+      payload.password,
+      findBackOfficeUser.password,
+    );
+
+    if (!findBackOfficeUser || !(await bcrypt.compare(payload.password, findBackOfficeUser.password))) {
+      throw new BadRequestException('Invalid credentials');
+    }
+
+    const backOfficeUserPayload = { sub: findBackOfficeUser.id, email: findBackOfficeUser.email };
+    const token = this.jwtService.sign(backOfficeUserPayload, {
+      expiresIn: this.jwtExpirationTime,
+      secret: process.env.JWT_SECRET,
+    });
+    const refreshToken = this.jwtService.sign(
+      { sub: findBackOfficeUser.id },
+      {
+        secret: process.env.REFRESH_TOKEN_SECRET,
+        expiresIn: this.refreshTokenExpirationTime,
+      },
+    );
+    const hashedRt = await bcrypt.hash(refreshToken, 10);
+    await this.backOfficeUserRepo.update(findBackOfficeUser.id, { hashedRt });
+
+    return {
+      data: {
+        access_token: token,
+        refresh_token: refreshToken,
+      },
+    };
   }
 }

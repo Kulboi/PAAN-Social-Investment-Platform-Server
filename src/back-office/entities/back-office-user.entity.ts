@@ -34,4 +34,7 @@ export class BackOfficeUser {
 
   @Column({ default: true })
   is_active: boolean;
+
+  @Column({ nullable: true })
+  hashedRt: string;
 }
