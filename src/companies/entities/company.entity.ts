@@ -26,7 +26,7 @@ export class Company {
   @Column({ nullable: true })
   official_email: string;
 
-  @Column({ default: true })
+  @Column({ default: false })
   is_verified: boolean;
 
   @CreateDateColumn({
