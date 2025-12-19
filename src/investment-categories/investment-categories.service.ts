@@ -1,10 +1,11 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { InvestmentCategory } from './entities/investment-category.entity';
 
 import { CreateInvestmentCategoryDto } from './dto/create-investment-category.dto';
+import { UpdateInvestmentCategoryDto } from './dto/update-investment-category.dto';
 
 @Injectable()
 export class InvestmentCategoriesService {
@@ -30,6 +31,27 @@ export class InvestmentCategoriesService {
       name: newCategory.name,
       description: newCategory.description,
       icon: newCategory.icon,
+    };
+  }
+
+  async getInvestmentCategories() {
+    return await this.investmentCategoryRepo.find();
+  }
+
+  async updateInvestmentCategory(payload: UpdateInvestmentCategoryDto) {
+    const category = await this.investmentCategoryRepo.findOneBy({ name: payload.name });
+    if (!category) {
+      throw new NotFoundException('Investment category not found');
+    }
+    category.name = payload.name;
+    category.description = payload.description;
+    category.icon = payload.icon;
+    await this.investmentCategoryRepo.save(category);
+
+    return {
+      name: category.name,
+      description: category.description,
+      icon: category.icon,
     };
   }
 }
