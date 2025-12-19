@@ -16,17 +16,6 @@ import { FetchInvestmentCategoriesDto } from './dto/fetch-investment-categories.
 export class InvestmentCategoriesController {
   constructor(private readonly investmentCategoriesService: InvestmentCategoriesService) {}
 
-  @Post('create-investment-category')
-  @ApiOperation({ summary: 'Create investment category' })
-  @ApiBody({ type: CreateInvestmentCategoryDto })
-  @ApiResponse({ 
-    status: 201,
-    description: 'Investment category created successfully.',
-  })
-  async createInvestmentCategory(@Body() payload: CreateInvestmentCategoryDto) {
-    return this.investmentCategoriesService.createInvestmentCategory(payload);
-  }
-
   @Get('get-investment-categories')
   @ApiOperation({ summary: 'Get investment categories' })
   @ApiResponse({ 
