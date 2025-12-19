@@ -42,4 +42,26 @@ export class BackOfficeController {
   async login(@Body() payload: LoginBackOfficeUserRequestDto) {
     return this.backOfficeService.loginBackOfficeUser(payload);
   }
+
+  @Post('create-investment-category')
+  @ApiOperation({ summary: 'Create investment category' })
+  @ApiResponse({ 
+    status: 201,
+    description: 'Investment category created successfully.',
+  })
+  @UseGuards(JwtAuthGuard)
+  async createInvestmentCategory() {
+    // Implementation goes here
+  } 
+
+  @Post('create-investment')
+  @ApiOperation({ summary: 'Create investment' })
+  @ApiResponse({ 
+    status: 201,
+    description: 'Investment created successfully.',
+  })
+  @UseGuards(JwtAuthGuard)
+  async createInvestment() {
+    // Implementation goes here
+  } 
 }

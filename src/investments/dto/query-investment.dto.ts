@@ -72,11 +72,11 @@ export class QueryInvestmentDto {
   @Max(100)
   maxReturn?: number;
 
-  @ApiPropertyOptional({ description: 'Filter by owner ID', example: 1 })
+  @ApiPropertyOptional({ description: 'Filter by creator ID', example: 1 })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  ownerId?: string;
+  creatorId?: string;
 
   @ApiPropertyOptional({ description: 'Page number for pagination', example: 1, default: 1 })
   @IsOptional()

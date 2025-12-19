@@ -29,7 +29,7 @@ export class InvestmentsService {
 
     const investment = this.investmentRepository.create({
       ...createInvestmentDto,
-      owner_id: userId,
+      creator_id: userId,
       status: InvestmentStatus.PENDING,
       totalRaised: 0,
       images: createInvestmentDto.images || [],
@@ -62,8 +62,8 @@ export class InvestmentsService {
       whereConditions.status = filters.status;
     }
     
-    if (filters.ownerId) {
-      whereConditions.owner_id = filters.ownerId;
+    if (filters.creatorId) {
+      whereConditions.creator_id = filters.creatorId;
     }
 
     const [investments, total] = await this.investmentRepository.findAndCount({
@@ -108,7 +108,7 @@ export class InvestmentsService {
       throw new NotFoundException(`Investment with ID ${id} not found`);
     }
 
-    if (investment.owner_id !== userId) {
+    if (investment.creator_id !== userId) {
       throw new ForbiddenException('You can only update your own investments');
     }
 
@@ -129,7 +129,7 @@ export class InvestmentsService {
       throw new NotFoundException(`Investment with ID ${id} not found`);
     }
 
-    if (investment.owner_id !== userId) {
+    if (investment.creator_id !== userId) {
       throw new ForbiddenException('You can only delete your own investments');
     }
 
@@ -151,7 +151,7 @@ export class InvestmentsService {
       throw new NotFoundException(`Investment with ID ${id} not found`);
     }
 
-    if (investment.owner_id !== userId) {
+    if (investment.creator_id !== userId) {
       throw new ForbiddenException('You can only update your own investments');
     }
 
@@ -164,9 +164,9 @@ export class InvestmentsService {
 
   async findByOwner(userId: string): Promise<InvestmentResponseDto[]> {
     const investments = await this.investmentRepository.find({
-      where: { owner_id: userId },
+      where: { creator_id: userId },
       order: { createdAt: 'DESC' },
-      relations: ['owner'],
+      relations: ['creator'],
     });
 
     return investments.map(investment => this.mapToResponseDto(investment));
@@ -192,7 +192,7 @@ export class InvestmentsService {
       id: investment.id,
       title: investment.title,
       description: investment.description,
-      owner_id: investment.owner_id,
+      creator_id: investment.creator_id,
       images: investment.images,
       category: investment.category,
       start_date: investment.start_date,

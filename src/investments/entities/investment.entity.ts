@@ -10,6 +10,7 @@ import {
 import { User } from '../../user/entities/user.entity';
 import { InvestmentCategory } from './investment-categories.entity';
 import { InvestmentTransaction } from './investment-transaction.entity';
+import { BackOfficeUser } from 'src/back-office/entities/back-office-user.entity';
 
 enum InvestmentRiskLevel {
   LOW = 'low',
@@ -36,9 +37,13 @@ export class Investment {
   description: string;
 
   @Column()
-  owner_id: string;
+  creator_id: string;
 
- @Column('text', { array: true })
+  @ManyToOne(() => BackOfficeUser, (user) => user.id, { eager: false })
+  @JoinColumn({ name: 'creator_id' })
+  creator: BackOfficeUser;
+
+  @Column('text', { array: true })
   images: string[];
 
   @ManyToOne(() => InvestmentCategory, (category) => category.investments, { eager: false })

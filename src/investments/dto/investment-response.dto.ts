@@ -14,8 +14,8 @@ export class InvestmentResponseDto {
   @ApiProperty({ description: 'Investment description', example: 'A luxury residential development in the heart of the city' })
   description: string;
 
-  @ApiProperty({ description: 'Owner user ID', example: 1 })
-  owner_id: string;
+  @ApiProperty({ description: 'Creator user ID', example: 1 })
+  creator_id: string;
 
   @ApiProperty({ description: 'Array of image URLs', example: ['https://example.com/image1.jpg'] })
   images: string[];
