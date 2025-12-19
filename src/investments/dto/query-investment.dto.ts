@@ -93,11 +93,6 @@ export class QueryInvestmentDto {
   @Max(100)
   limit?: number = 10;
 
-  @ApiPropertyOptional({ description: 'Sort field', example: 'createdAt', default: 'createdAt' })
-  @IsOptional()
-  @IsString()
-  sortBy?: string = 'createdAt';
-
   @ApiPropertyOptional({ description: 'Sort order', example: 'DESC', default: 'DESC', enum: ['ASC', 'DESC'] })
   @IsOptional()
   @IsString()

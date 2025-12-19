@@ -46,7 +46,7 @@ export class InvestmentsService {
     limit: number;
     totalPages: number;
   }> {
-    const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'DESC', ...filters } = queryDto;
+    const { page = 1, limit = 10, sortOrder = 'DESC', ...filters } = queryDto;
     
     const whereConditions: FindOptionsWhere<Investment> = {};
     
@@ -68,7 +68,7 @@ export class InvestmentsService {
 
     const [investments, total] = await this.investmentRepository.findAndCount({
       where: whereConditions,
-      order: { [sortBy]: sortOrder },
+      order: { createdAt: sortOrder },
       skip: (page - 1) * limit,
       take: limit,
       relations: ['owner'],
