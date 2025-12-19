@@ -18,6 +18,7 @@ import { CreateBackOfficeUserRequestDto } from './dto/create-back-office-user-re
 import { CreateBackOfficeUserResponseDto } from './dto/create-back-office-user-response.dto';
 import { LoginBackOfficeUserRequestDto } from './dto/login-back-office-user-request.dto';
 import { CreateInvestmentCategoryDto } from 'src/investment-categories/dto/create-investment-category.dto';
+import { UpdateInvestmentCategoryDto } from 'src/investment-categories/dto/update-investment-category.dto';
 import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
 import { UpdateCompanyDto } from 'src/companies/dto/update-company.dto';
 
@@ -96,6 +97,18 @@ export class BackOfficeController {
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async createInvestmentCategory(@Body() payload: CreateInvestmentCategoryDto) {
     return this.investmentCategoriesService.createInvestmentCategory(payload);
+  }
+
+  @Patch('update-investment-category')
+  @ApiOperation({ summary: 'Update investment category' })
+  @ApiBody({ type: CreateInvestmentCategoryDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Investment category updated successfully.',
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  async updateInvestmentCategory(@Body() payload: UpdateInvestmentCategoryDto) {
+    return this.investmentCategoriesService.updateInvestmentCategory(payload);
   }
 
   @Post('create-investment')
