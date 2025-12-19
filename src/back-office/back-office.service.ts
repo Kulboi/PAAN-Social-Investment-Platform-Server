@@ -71,13 +71,13 @@ export class BackOfficeService {
       throw new BadRequestException('Invalid credentials');
     }
 
-    const backOfficeUserPayload = { sub: findBackOfficeUser.id, email: findBackOfficeUser.email };
+    const backOfficeUserPayload = { id: findBackOfficeUser.id, email: findBackOfficeUser.email, role: findBackOfficeUser.role };
     const token = this.jwtService.sign(backOfficeUserPayload, {
       expiresIn: this.jwtExpirationTime,
       secret: process.env.JWT_SECRET,
     });
     const refreshToken = this.jwtService.sign(
-      { sub: findBackOfficeUser.id },
+      { id: findBackOfficeUser.id },
       {
         secret: process.env.REFRESH_TOKEN_SECRET,
         expiresIn: this.refreshTokenExpirationTime,
