@@ -8,10 +8,11 @@ import { InvestmentCategoriesService } from 'src/investment-categories/investmen
 
 import { BackOfficeUser } from 'src/back-office/entities/back-office-user.entity';
 import { InvestmentCategory } from 'src/investment-categories/entities/investment-category.entity';
+import { Company } from 'src/companies/entities/company.entity';
 
 @Module({
   controllers: [BackOfficeController],
   providers: [BackOfficeService, JwtService, InvestmentCategoriesService],
-  imports: [TypeOrmModule.forFeature([BackOfficeUser, InvestmentCategory])],
+  imports: [TypeOrmModule.forFeature([BackOfficeUser, InvestmentCategory, Company])],
 })
 export class BackOfficeModule {}

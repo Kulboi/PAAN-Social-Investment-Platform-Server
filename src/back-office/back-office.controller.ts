@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Patch, Param } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -9,6 +9,7 @@ import {
 
 import { BackOfficeService } from './back-office.service';
 import { InvestmentCategoriesService } from 'src/investment-categories/investment-categories.service';
+import { CompaniesService } from 'src/companies/companies.service';
 
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { AdminRoleGuard } from 'src/common/guards/admin-role.guard';
@@ -17,6 +18,8 @@ import { CreateBackOfficeUserRequestDto } from './dto/create-back-office-user-re
 import { CreateBackOfficeUserResponseDto } from './dto/create-back-office-user-response.dto';
 import { LoginBackOfficeUserRequestDto } from './dto/login-back-office-user-request.dto';
 import { CreateInvestmentCategoryDto } from 'src/investment-categories/dto/create-investment-category.dto';
+import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
+import { UpdateCompanyDto } from 'src/companies/dto/update-company.dto';
 
 @ApiBearerAuth()
 @Controller('back-office')
@@ -25,6 +28,7 @@ export class BackOfficeController {
   constructor(
     private readonly backOfficeService: BackOfficeService,
     private readonly investmentCategoriesService: InvestmentCategoriesService,
+    private readonly companiesService: CompaniesService,
   ) {}
 
   @Post('register')
@@ -56,6 +60,30 @@ export class BackOfficeController {
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async login(@Body() payload: LoginBackOfficeUserRequestDto) {
     return this.backOfficeService.loginBackOfficeUser(payload);
+  }
+
+  @Post('create-company')
+  @ApiOperation({ summary: 'Create company' })
+  @ApiBody({ type: CreateCompanyDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Company created successfully.',
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  async createCompany(@Body() payload: CreateCompanyDto) {
+    return this.companiesService.createCompany(payload);
+  }
+
+  @Patch('update-company')
+  @ApiOperation({ summary: 'Update company' })
+  @ApiBody({ type: UpdateCompanyDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Company updated successfully.',
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  async updateCompany(@Param('id') id: string, @Body() payload: UpdateCompanyDto) {
+    return this.companiesService.updateCompany(id, payload);
   }
 
   @Post('create-investment-category')
