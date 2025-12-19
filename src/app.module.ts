@@ -19,6 +19,8 @@ import { NotificationsModule } from './notifications/notifications.module';
 
 import { AppController } from './app.controller';
 import { BackOfficeModule } from './back-office/back-office.module';
+import { InvestmentCategoriesModule } from './investment-categories/investment-categories.module';
+import { CompaniesModule } from './companies/companies.module';
 
 @Module({
   imports: [
@@ -46,7 +48,9 @@ import { BackOfficeModule } from './back-office/back-office.module';
     EventEmitterModule.forRoot(),
     InvestmentsModule,
     NotificationsModule,
-    BackOfficeModule
+    BackOfficeModule,
+    InvestmentCategoriesModule,
+    CompaniesModule
   ],
   providers: [JwtStrategy, RtStrategy],
   controllers: [AppController],
