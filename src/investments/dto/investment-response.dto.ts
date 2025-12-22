@@ -6,7 +6,7 @@ import { InvestmentRiskLevel, InvestmentStatus } from './create-investment.dto';
 
 export class InvestmentResponseDto {
   @ApiProperty({ description: 'Unique investment ID', example: 1 })
-  id: number;
+  id: string;
 
   @ApiProperty({ description: 'Investment title', example: 'Real Estate Development Project' })
   title: string;

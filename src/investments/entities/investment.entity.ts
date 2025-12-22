@@ -26,8 +26,8 @@ enum InvestmentStatus {
 
 @Entity()
 export class Investment {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   title: string;

@@ -8,6 +8,10 @@ import {
   Req,
   Get,
   Query,
+  Delete,
+  Request,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -15,6 +19,7 @@ import {
   ApiResponse,
   ApiBody,
   ApiBearerAuth,
+  ApiParam,
 } from '@nestjs/swagger';
 
 import { BackOfficeService } from './back-office.service';
@@ -38,6 +43,7 @@ import {
   FetchSystemUsersRequestDto,
   FetchSystemUserResponseDto,
 } from './dto/system-users.dto';
+import { UpdateInvestmentDto } from 'src/investments/dto/update-investment.dto';
 
 @ApiBearerAuth()
 @Controller('back-office')
@@ -67,15 +73,16 @@ export class BackOfficeController {
   }
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login back office user' })
   @ApiBody({ type: LoginBackOfficeUserRequestDto })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'The back office user has been successfully logged in.',
     type: CreateBackOfficeUserResponseDto,
   })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  @ApiResponse({ status: 400, description: 'Invalid credentials' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid credentials' })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   login(@Body() payload: LoginBackOfficeUserRequestDto) {
     return this.backOfficeService.loginBackOfficeUser(payload);
@@ -84,13 +91,13 @@ export class BackOfficeController {
   @Get('refresh-token')
   @ApiOperation({ summary: 'Refresh back office user JWT token' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'The JWT token has been successfully refreshed.',
     type: CreateBackOfficeUserResponseDto,
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  @HttpCode(HttpStatus.OK)
   refreshToken(@Req() req) {
-    // Implementation goes here
     return this.backOfficeService.refreshToken({
       user_id: req.user.id,
       refresh_token: req.user.refresh_token,
@@ -98,10 +105,11 @@ export class BackOfficeController {
   }
 
   @Post('create-company')
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create company' })
   @ApiBody({ type: CreateCompanyDto })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: 'Company created successfully.',
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
@@ -110,10 +118,11 @@ export class BackOfficeController {
   }
 
   @Patch('update-company')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update company' })
   @ApiBody({ type: UpdateCompanyDto })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.OK,
     description: 'Company updated successfully.',
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
@@ -125,10 +134,11 @@ export class BackOfficeController {
   }
 
   @Post('create-investment-category')
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create investment category' })
   @ApiBody({ type: CreateInvestmentCategoryDto })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: 'Investment category created successfully.',
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
@@ -137,10 +147,11 @@ export class BackOfficeController {
   }
 
   @Patch('update-investment-category')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update investment category' })
   @ApiBody({ type: CreateInvestmentCategoryDto })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.OK,
     description: 'Investment category updated successfully.',
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
@@ -150,15 +161,43 @@ export class BackOfficeController {
 
   @Post('create-investment')
   @ApiBearerAuth()
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new investment' })
   @ApiResponse({
-    status: 201,
+    status: HttpStatus.CREATED,
     description: 'Investment created successfully',
     type: InvestmentResponseDto,
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   createInvestment(@Body() payload: CreateInvestmentDto) {
     return this.investmentsService.create(payload);
+  }
+
+  @Patch('update-investment/:id')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update investment' })
+  @ApiParam({ name: 'id', description: 'Investment ID', type: Number })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Investment updated successfully',
+    type: InvestmentResponseDto,
+  })
+  async update(
+    @Param('id') id: string,
+    @Body() updateInvestmentDto: UpdateInvestmentDto,
+  ): Promise<InvestmentResponseDto> {
+    return this.investmentsService.update(id, updateInvestmentDto);
+  }
+
+  @Delete('delete-investment/:id')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete investment' })
+  @ApiParam({ name: 'id', description: 'Investment ID', type: Number })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Investment deleted successfully' })
+  async remove(@Param('id') id: string, @Request() req: any): Promise<{ message: string }> {
+    return this.investmentsService.remove(id, req.user.id);
   }
 
   @Get('get-registered-users')
@@ -230,5 +269,5 @@ export class BackOfficeController {
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   deactivateRegisteredUser(@Param('id') id: string) {
     return this.backOfficeService.deactivateRegisteredUser(id);
-  } 
+  }
 }

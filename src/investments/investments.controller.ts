@@ -57,20 +57,7 @@ export class InvestmentsController {
   @ApiParam({ name: 'id', description: 'Investment ID', type: Number })
   @ApiResponse({ status: 200, description: 'Investment retrieved successfully', type: InvestmentResponseDto })
   async findOne(@Param('id') id: string): Promise<InvestmentResponseDto> {
-    return this.investmentsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update investment' })
-  @ApiParam({ name: 'id', description: 'Investment ID', type: Number })
-  @ApiResponse({ status: 200, description: 'Investment updated successfully', type: InvestmentResponseDto })
-  async update(
-    @Param('id') id: string,
-    @Body() updateInvestmentDto: UpdateInvestmentDto,
-    @Request() req: any,
-  ): Promise<InvestmentResponseDto> {
-    return this.investmentsService.update(+id, updateInvestmentDto, req.user.id);
+    return this.investmentsService.findOne(id);
   }
 
   @Patch(':id/status')
@@ -83,16 +70,6 @@ export class InvestmentsController {
     @Body('status') status: InvestmentStatus,
     @Request() req: any,
   ): Promise<InvestmentResponseDto> {
-    return this.investmentsService.updateStatus(+id, status, req.user.id);
-  }
-
-  @Delete(':id')
-  @ApiBearerAuth()
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete investment' })
-  @ApiParam({ name: 'id', description: 'Investment ID', type: Number })
-  @ApiResponse({ status: 200, description: 'Investment deleted successfully' })
-  async remove(@Param('id') id: string, @Request() req: any): Promise<{ message: string }> {
-    return this.investmentsService.remove(+id, req.user.id);
+    return this.investmentsService.updateStatus(id, status, req.user.id);
   }
 }

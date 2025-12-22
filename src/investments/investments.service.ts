@@ -84,7 +84,7 @@ export class InvestmentsService {
     };
   }
 
-  async findOne(id: number): Promise<InvestmentResponseDto> {
+  async findOne(id: string): Promise<InvestmentResponseDto> {
     const investment = await this.investmentRepository.findOne({
       where: { id },
       relations: ['creator'],
@@ -97,7 +97,7 @@ export class InvestmentsService {
     return this.mapToResponseDto(investment);
   }
 
-  async update(id: number, updateInvestmentDto: UpdateInvestmentDto, userId: string): Promise<InvestmentResponseDto> {
+  async update(id: string, updateInvestmentDto: UpdateInvestmentDto): Promise<InvestmentResponseDto> {
     const investment = await this.investmentRepository.findOne({
       where: { id },
       relations: ['creator'],
@@ -107,10 +107,6 @@ export class InvestmentsService {
       throw new NotFoundException(`Investment with ID ${id} not found`);
     }
 
-    if (investment.creator_id !== userId) {
-      throw new ForbiddenException('You can only update your own investments');
-    }
-
     Object.assign(investment, updateInvestmentDto);
     investment.updatedAt = new Date();
 
@@ -118,7 +114,7 @@ export class InvestmentsService {
     return this.mapToResponseDto(updatedInvestment);
   }
 
-  async remove(id: number, userId: string): Promise<{ message: string }> {
+  async remove(id: string, userId: string): Promise<{ message: string }> {
     const investment = await this.investmentRepository.findOne({
       where: { id },
       relations: ['creator'],
@@ -140,7 +136,7 @@ export class InvestmentsService {
     return { message: 'Investment deleted successfully' };
   }
 
-  async updateStatus(id: number, status: InvestmentStatus, userId: string): Promise<InvestmentResponseDto> {
+  async updateStatus(id: string, status: InvestmentStatus, userId: string): Promise<InvestmentResponseDto> {
     const investment = await this.investmentRepository.findOne({
       where: { id },
       relations: ['creator'],
