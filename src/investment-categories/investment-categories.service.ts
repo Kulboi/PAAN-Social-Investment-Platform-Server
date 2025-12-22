@@ -54,4 +54,12 @@ export class InvestmentCategoriesService {
       icon: category.icon,
     };
   }
+
+  async deleteInvestmentCategory(name: string) {
+    const category = await this.investmentCategoryRepo.findOneBy({ name });
+    if (!category) {
+      throw new NotFoundException('Investment category not found');
+    }
+    await this.investmentCategoryRepo.remove(category);
+  }
 }

@@ -146,7 +146,7 @@ export class BackOfficeController {
     return this.companiesService.deleteCompany(id);
   }
 
-  @Post('create-investment-category')
+  @Post('investment-category/create')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create investment category' })
   @ApiBody({ type: CreateInvestmentCategoryDto })
@@ -159,7 +159,7 @@ export class BackOfficeController {
     return this.investmentCategoriesService.createInvestmentCategory(payload);
   }
 
-  @Patch('update-investment-category')
+  @Patch('investment-category/update')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update investment category' })
   @ApiBody({ type: CreateInvestmentCategoryDto })
@@ -170,6 +170,19 @@ export class BackOfficeController {
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async updateInvestmentCategory(@Body() payload: UpdateInvestmentCategoryDto) {
     return this.investmentCategoriesService.updateInvestmentCategory(payload);
+  }
+
+  @Delete('investment-category/delete/:name')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete investment category' })
+  @ApiParam({ name: 'name', description: 'Investment Category Name', type: String })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Investment category deleted successfully.',
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  async deleteInvestmentCategory(@Param('name') name: string) {
+    return this.investmentCategoriesService.deleteInvestmentCategory(name);
   }
 
   @Post('investment/create')
