@@ -226,7 +226,7 @@ export class BackOfficeController {
     return this.investmentsService.remove(id, req.user.id);
   }
 
-  @Get('get-registered-users')
+  @Get('registered-users/list')
   @ApiOperation({ summary: 'Get registered users' })
   @ApiResponse({
     status: 200,
@@ -238,7 +238,7 @@ export class BackOfficeController {
     return this.backOfficeService.getRegisteredUsers(query);
   }
 
-  @Get('get-registered-user/:id')
+  @Get('registered-users/:id')
   @ApiOperation({ summary: 'Get registered user by ID' })
   @ApiResponse({
     status: 200,
@@ -250,7 +250,7 @@ export class BackOfficeController {
     return this.backOfficeService.getRegisteredUserById(id);
   }
 
-  @Get('search-registered-users')
+  @Get('registered-users/search')
   @ApiOperation({ summary: 'Search registered users' })
   @ApiResponse({
     status: 200,
@@ -263,7 +263,7 @@ export class BackOfficeController {
     return this.backOfficeService.searchRegisteredUsers(keyword);
   }
 
-  @Patch('update-registered-user/:id')
+  @Patch('registered-users/update/:id')
   @ApiOperation({ summary: 'Update registered user status' })
   @ApiResponse({
     status: 200,
@@ -275,7 +275,7 @@ export class BackOfficeController {
     return this.backOfficeService.updateRegisteredUserInfo(id, payload);
   }
 
-  @Get('activate-registered-user/:id')
+  @Get('registered-user/activate/:id')
   @ApiOperation({ summary: 'Activate registered user' })
   @ApiResponse({
     status: 200,
@@ -286,7 +286,7 @@ export class BackOfficeController {
     return this.backOfficeService.activateRegisteredUser(id);
   }
 
-  @Get('deactivate-registered-user/:id')
+  @Get('registered-user/deactivate/:id')
   @ApiOperation({ summary: 'Deactivate registered user' })
   @ApiResponse({
     status: 200,
