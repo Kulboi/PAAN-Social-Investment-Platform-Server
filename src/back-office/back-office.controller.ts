@@ -104,7 +104,7 @@ export class BackOfficeController {
     });
   }
 
-  @Post('create-company')
+  @Post('company/create')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create company' })
   @ApiBody({ type: CreateCompanyDto })
@@ -117,7 +117,7 @@ export class BackOfficeController {
     return this.companiesService.createCompany(payload);
   }
 
-  @Patch('update-company')
+  @Patch('company/update/:id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update company' })
   @ApiBody({ type: UpdateCompanyDto })
@@ -131,6 +131,19 @@ export class BackOfficeController {
     @Body() payload: UpdateCompanyDto,
   ) {
     return this.companiesService.updateCompany(id, payload);
+  }
+
+  @Delete('company/delete/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete company' })
+  @ApiParam({ name: 'id', description: 'Company ID', type: String })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Company deleted successfully.',
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  async deleteCompany(@Param('id') id: string) {
+    return this.companiesService.deleteCompany(id);
   }
 
   @Post('create-investment-category')
@@ -159,7 +172,7 @@ export class BackOfficeController {
     return this.investmentCategoriesService.updateInvestmentCategory(payload);
   }
 
-  @Post('create-investment')
+  @Post('investment/create')
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new investment' })
@@ -173,7 +186,7 @@ export class BackOfficeController {
     return this.investmentsService.create(payload);
   }
 
-  @Patch('update-investment/:id')
+  @Patch('investment/update/:id')
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update investment' })
@@ -190,7 +203,7 @@ export class BackOfficeController {
     return this.investmentsService.update(id, updateInvestmentDto);
   }
 
-  @Delete('delete-investment/:id')
+  @Delete('investment/delete/:id')
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Delete investment' })

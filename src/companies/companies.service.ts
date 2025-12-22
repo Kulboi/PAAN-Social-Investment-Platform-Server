@@ -44,4 +44,12 @@ export class CompaniesService {
     Object.assign(company, payload);
     return await this.companyRepository.save(company);
   }
+
+  async deleteCompany(id: string): Promise<void> {
+    const company = await this.companyRepository.findOneBy({ id });
+    if (!company) {
+      throw new NotFoundException(`Company with ID ${id} not found`);
+    }
+    await this.companyRepository.remove(company);
+  }
 }
