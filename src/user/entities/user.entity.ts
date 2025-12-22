@@ -77,6 +77,9 @@ export class User {
   @Column({ default: false })
   is_verified: boolean;
 
+  @Column({ default: false })
+  is_active: boolean;
+
   @OneToMany(() => Verification, (verification) => verification.user)
   verifications: Verification[];
 

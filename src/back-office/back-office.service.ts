@@ -153,11 +153,65 @@ export class BackOfficeService {
     };
   }
 
-  async getRegisteredUsers(payload: FetchSystemUsersRequestDto) {
+  async getRegisteredUsers(payload: FetchSystemUsersRequestDto): Promise<User[]> {
     const users = await this.userRepository.find({
       skip: (payload.page - 1) * payload.limit,
       take: payload.limit,
     });
     return users;
+  }
+
+  async getRegisteredUserById(id: string): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
+  async searchRegisteredUsers(keyword: string): Promise<User[]> {
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.first_name ILIKE :keyword', { keyword: `%${keyword}%` })
+      .orWhere('user.last_name ILIKE :keyword', { keyword: `%${keyword}%` })
+      .orWhere('user.email ILIKE :keyword', { keyword: `%${keyword}%` })
+      .getMany();
+
+    return users;
+  }
+
+  async updateRegisteredUserInfo(id: string, updateData: Partial<User>): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    Object.assign(user, updateData);
+    return this.userRepository.save(user);
+  }
+
+  async deactivateRegisteredUser(id: string): Promise<void> {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.is_active = false;
+    await this.userRepository.save(user);
+  }
+
+  async activateRegisteredUser(id: string): Promise<void> {
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.is_active = true;
+    await this.userRepository.save(user);
   }
 }

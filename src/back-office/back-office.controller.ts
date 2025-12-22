@@ -1,4 +1,14 @@
-import { Controller, Post, Body, UseGuards, Patch, Param, Req, Get, Query } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Patch,
+  Param,
+  Req,
+  Get,
+  Query,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -24,7 +34,10 @@ import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
 import { UpdateCompanyDto } from 'src/companies/dto/update-company.dto';
 import { CreateInvestmentDto } from 'src/investments/dto/create-investment.dto';
 import { InvestmentResponseDto } from 'src/investments/dto/investment-response.dto';
-import { FetchSystemUsersRequestDto } from './dto/system-users.dto';
+import {
+  FetchSystemUsersRequestDto,
+  FetchSystemUserResponseDto,
+} from './dto/system-users.dto';
 
 @ApiBearerAuth()
 @Controller('back-office')
@@ -104,7 +117,10 @@ export class BackOfficeController {
     description: 'Company updated successfully.',
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
-  async updateCompany(@Param('id') id: string, @Body() payload: UpdateCompanyDto) {
+  async updateCompany(
+    @Param('id') id: string,
+    @Body() payload: UpdateCompanyDto,
+  ) {
     return this.companiesService.updateCompany(id, payload);
   }
 
@@ -135,7 +151,11 @@ export class BackOfficeController {
   @Post('create-investment')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new investment' })
-  @ApiResponse({ status: 201, description: 'Investment created successfully', type: InvestmentResponseDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Investment created successfully',
+    type: InvestmentResponseDto,
+  })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   createInvestment(@Body() payload: CreateInvestmentDto) {
     return this.investmentsService.create(payload);
@@ -146,9 +166,69 @@ export class BackOfficeController {
   @ApiResponse({
     status: 200,
     description: 'List of registered users retrieved successfully.',
+    type: [FetchSystemUserResponseDto],
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   getRegisteredUsers(@Query() query: FetchSystemUsersRequestDto) {
     return this.backOfficeService.getRegisteredUsers(query);
   }
+
+  @Get('get-registered-user/:id')
+  @ApiOperation({ summary: 'Get registered user by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Registered user retrieved successfully.',
+    type: FetchSystemUserResponseDto,
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  getRegisteredUserById(@Param('id') id: string) {
+    return this.backOfficeService.getRegisteredUserById(id);
+  }
+
+  @Get('search-registered-users')
+  @ApiOperation({ summary: 'Search registered users' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'List of registered users matching the search keyword retrieved successfully.',
+    type: [FetchSystemUserResponseDto],
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  searchRegisteredUsers(@Query('keyword') keyword: string) {
+    return this.backOfficeService.searchRegisteredUsers(keyword);
+  }
+
+  @Patch('update-registered-user/:id')
+  @ApiOperation({ summary: 'Update registered user status' })
+  @ApiResponse({
+    status: 200,
+    description: 'Registered user status updated successfully.',
+    type: FetchSystemUserResponseDto,
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  updateRegisteredUserStatus(@Param('id') id: string, @Body() payload) {
+    return this.backOfficeService.updateRegisteredUserInfo(id, payload);
+  }
+
+  @Get('activate-registered-user/:id')
+  @ApiOperation({ summary: 'Activate registered user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Registered user activated successfully.',
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  activateRegisteredUser(@Param('id') id: string) {
+    return this.backOfficeService.activateRegisteredUser(id);
+  }
+
+  @Get('deactivate-registered-user/:id')
+  @ApiOperation({ summary: 'Deactivate registered user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Registered user deactivated successfully.',
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  deactivateRegisteredUser(@Param('id') id: string) {
+    return this.backOfficeService.deactivateRegisteredUser(id);
+  } 
 }
