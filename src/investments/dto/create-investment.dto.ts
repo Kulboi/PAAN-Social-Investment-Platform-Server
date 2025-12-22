@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsEnum, IsArray, IsOptional, IsDateString, Min, Max } from 'class-validator';
+import { IsString, IsNumber, IsEnum, IsArray, IsOptional, IsDateString, Min, Max, IsUUID } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { InvestmentCategory } from '../entities/investment-categories.entity';
@@ -36,6 +36,11 @@ export class CreateInvestmentDto {
   @ApiProperty({ description: 'End date of the investment', example: '2024-12-31' })
   @IsDateString()
   end_date: string;
+
+  @ApiProperty({ description: 'Creator ID of the investment', example: '123e4567-e89b-12d3-a456-426614174000' })
+  @IsString()
+  @IsUUID()
+  creator_id: string;
 
   @ApiProperty({ description: 'Country where investment is located', example: 'Nigeria' })
   @IsString()

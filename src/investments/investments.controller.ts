@@ -27,17 +27,6 @@ import { InvestmentStatus } from './dto/create-investment.dto';
 export class InvestmentsController {
   constructor(private readonly investmentsService: InvestmentsService) {}
 
-  @Post()
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a new investment' })
-  @ApiResponse({ status: 201, description: 'Investment created successfully', type: InvestmentResponseDto })
-  async create(
-    @Body() createInvestmentDto: CreateInvestmentDto,
-    @Request() req: any,
-  ): Promise<InvestmentResponseDto> {
-    return this.investmentsService.create(createInvestmentDto, req.user.id);
-  }
-
   @Get()
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get all investments with filtering and pagination' })

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Patch, Param } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Patch, Param, Req, Get } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -9,6 +9,7 @@ import {
 
 import { BackOfficeService } from './back-office.service';
 import { InvestmentCategoriesService } from 'src/investment-categories/investment-categories.service';
+import { InvestmentsService } from 'src/investments/investments.service';
 import { CompaniesService } from 'src/companies/companies.service';
 
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
@@ -21,6 +22,8 @@ import { CreateInvestmentCategoryDto } from 'src/investment-categories/dto/creat
 import { UpdateInvestmentCategoryDto } from 'src/investment-categories/dto/update-investment-category.dto';
 import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
 import { UpdateCompanyDto } from 'src/companies/dto/update-company.dto';
+import { CreateInvestmentDto } from 'src/investments/dto/create-investment.dto';
+import { InvestmentResponseDto } from 'src/investments/dto/investment-response.dto';
 
 @ApiBearerAuth()
 @Controller('back-office')
@@ -29,6 +32,7 @@ export class BackOfficeController {
   constructor(
     private readonly backOfficeService: BackOfficeService,
     private readonly investmentCategoriesService: InvestmentCategoriesService,
+    private readonly investmentsService: InvestmentsService,
     private readonly companiesService: CompaniesService,
   ) {}
 
@@ -44,7 +48,7 @@ export class BackOfficeController {
     status: 409,
     description: 'Back office user with this email already exists',
   })
-  async register(@Body() payload: CreateBackOfficeUserRequestDto) {
+  register(@Body() payload: CreateBackOfficeUserRequestDto) {
     return this.backOfficeService.createBackOfficeUser(payload);
   }
 
@@ -59,8 +63,24 @@ export class BackOfficeController {
   @ApiResponse({ status: 404, description: 'User not found' })
   @ApiResponse({ status: 400, description: 'Invalid credentials' })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
-  async login(@Body() payload: LoginBackOfficeUserRequestDto) {
+  login(@Body() payload: LoginBackOfficeUserRequestDto) {
     return this.backOfficeService.loginBackOfficeUser(payload);
+  }
+
+  @Get('refresh-token')
+  @ApiOperation({ summary: 'Refresh back office user JWT token' })
+  @ApiResponse({
+    status: 200,
+    description: 'The JWT token has been successfully refreshed.',
+    type: CreateBackOfficeUserResponseDto,
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  refreshToken(@Req() req) {
+    // Implementation goes here
+    return this.backOfficeService.refreshToken({
+      user_id: req.user.id,
+      refresh_token: req.user.refresh_token,
+    });
   }
 
   @Post('create-company')
@@ -112,13 +132,11 @@ export class BackOfficeController {
   }
 
   @Post('create-investment')
-  @ApiOperation({ summary: 'Create investment' })
-  @ApiResponse({
-    status: 201,
-    description: 'Investment created successfully.',
-  })
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new investment' })
+  @ApiResponse({ status: 201, description: 'Investment created successfully', type: InvestmentResponseDto })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
-  async createInvestment() {
-    // Implementation goes here
+  createInvestment(@Body() payload: CreateInvestmentDto) {
+    return this.investmentsService.create(payload);
   }
 }

@@ -15,7 +15,7 @@ export class InvestmentsService {
     private readonly investmentRepository: Repository<Investment>,
   ) {}
 
-  async create(createInvestmentDto: CreateInvestmentDto, creatorId: string): Promise<InvestmentResponseDto> {
+  async create(createInvestmentDto: CreateInvestmentDto): Promise<InvestmentResponseDto> {
     const startDate = new Date(createInvestmentDto.start_date);
     const endDate = new Date(createInvestmentDto.end_date);
     
@@ -29,7 +29,6 @@ export class InvestmentsService {
 
     const investment = this.investmentRepository.create({
       ...createInvestmentDto,
-      creator_id: creatorId,
       status: InvestmentStatus.PENDING,
       totalRaised: 0,
       images: createInvestmentDto.images || [],

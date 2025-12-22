@@ -8,6 +8,7 @@ import { BackOfficeUser } from './entities/back-office-user.entity';
 
 import { CreateBackOfficeUserRequestDto } from './dto/create-back-office-user-request.dto';
 import { LoginBackOfficeUserRequestDto } from './dto/login-back-office-user-request.dto';
+import { RefreshBackOfficeUserTokenDto } from './dto/refresh-back-office-user-token.dto';
 
 @Injectable()
 export class BackOfficeService {
@@ -91,6 +92,60 @@ export class BackOfficeService {
         access_token: token,
         refresh_token: refreshToken,
       },
+    };
+  }
+
+  async refreshToken(payload: RefreshBackOfficeUserTokenDto) {
+    const backOfficeUser = await this.backOfficeUserRepo.findOneBy({ id: payload.user_id });
+
+    if (!backOfficeUser || !backOfficeUser.hashedRt) {
+      throw new NotFoundException('Back office user not found');
+    }
+
+    const rtMatches = await bcrypt.compare(payload.refresh_token, backOfficeUser.hashedRt);
+
+    if (!rtMatches) {
+      throw new BadRequestException('Invalid refresh token');
+    }
+
+    const backOfficeUserPayload = { id: backOfficeUser.id, email: backOfficeUser.email, role: backOfficeUser.role };
+    const token = this.jwtService.sign(backOfficeUserPayload, {
+      expiresIn: this.jwtExpirationTime,
+      secret: process.env.JWT_SECRET,
+    });
+    const refreshToken = this.jwtService.sign(
+      { id: backOfficeUser.id },
+      {
+        secret: process.env.REFRESH_TOKEN_SECRET,
+        expiresIn: this.refreshTokenExpirationTime,
+      },
+    );
+    const hashedRt = await bcrypt.hash(refreshToken, 10);
+    await this.backOfficeUserRepo.update(backOfficeUser.id, { hashedRt });
+
+    return {
+      data: {
+        access_token: token,
+        refresh_token: refreshToken,
+      },
+    };
+  }
+
+  async getBackOfficeUserById(id: string) {
+    const backOfficeUser = await this.backOfficeUserRepo.findOneBy({ id });
+
+    if (!backOfficeUser) {
+      throw new NotFoundException('Back office user not found');
+    }
+
+    return {
+      id: backOfficeUser.id,
+      first_name: backOfficeUser.first_name,
+      last_name: backOfficeUser.last_name,
+      email: backOfficeUser.email,
+      username: backOfficeUser.username,
+      role: backOfficeUser.role,
+      is_active: backOfficeUser.is_active,
     };
   }
 }
