@@ -15,7 +15,7 @@ export class InvestmentsService {
     private readonly investmentRepository: Repository<Investment>,
   ) {}
 
-  async create(createInvestmentDto: CreateInvestmentDto, userId: string): Promise<InvestmentResponseDto> {
+  async create(createInvestmentDto: CreateInvestmentDto, creatorId: string): Promise<InvestmentResponseDto> {
     const startDate = new Date(createInvestmentDto.start_date);
     const endDate = new Date(createInvestmentDto.end_date);
     
@@ -29,7 +29,7 @@ export class InvestmentsService {
 
     const investment = this.investmentRepository.create({
       ...createInvestmentDto,
-      creator_id: userId,
+      creator_id: creatorId,
       status: InvestmentStatus.PENDING,
       totalRaised: 0,
       images: createInvestmentDto.images || [],
@@ -71,7 +71,7 @@ export class InvestmentsService {
       order: { createdAt: sortOrder },
       skip: (page - 1) * limit,
       take: limit,
-      relations: ['owner'],
+      relations: ['creator'],
     });
 
     const totalPages = Math.ceil(total / limit);
@@ -88,7 +88,7 @@ export class InvestmentsService {
   async findOne(id: number): Promise<InvestmentResponseDto> {
     const investment = await this.investmentRepository.findOne({
       where: { id },
-      relations: ['owner'],
+      relations: ['creator'],
     });
 
     if (!investment) {
@@ -101,7 +101,7 @@ export class InvestmentsService {
   async update(id: number, updateInvestmentDto: UpdateInvestmentDto, userId: string): Promise<InvestmentResponseDto> {
     const investment = await this.investmentRepository.findOne({
       where: { id },
-      relations: ['owner'],
+      relations: ['creator'],
     });
 
     if (!investment) {
@@ -122,7 +122,7 @@ export class InvestmentsService {
   async remove(id: number, userId: string): Promise<{ message: string }> {
     const investment = await this.investmentRepository.findOne({
       where: { id },
-      relations: ['owner'],
+      relations: ['creator'],
     });
 
     if (!investment) {
@@ -144,7 +144,7 @@ export class InvestmentsService {
   async updateStatus(id: number, status: InvestmentStatus, userId: string): Promise<InvestmentResponseDto> {
     const investment = await this.investmentRepository.findOne({
       where: { id },
-      relations: ['owner'],
+      relations: ['creator'],
     });
 
     if (!investment) {
@@ -177,7 +177,7 @@ export class InvestmentsService {
       where: { status: InvestmentStatus.ACTIVE },
       order: { expected_return: 'DESC' },
       take: limit,
-      relations: ['owner'],
+      relations: ['creator'],
     });
 
     return investments.map(investment => this.mapToResponseDto(investment));

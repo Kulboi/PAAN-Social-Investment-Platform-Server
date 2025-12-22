@@ -4,10 +4,9 @@ import {
   Column,
   JoinColumn,
   OneToMany,
-  ManyToOne,
+  OneToOne,
 } from 'typeorm';
 
-import { User } from '../../user/entities/user.entity';
 import { InvestmentCategory } from './investment-categories.entity';
 import { InvestmentTransaction } from './investment-transaction.entity';
 import { BackOfficeUser } from 'src/back-office/entities/back-office-user.entity';
@@ -39,14 +38,14 @@ export class Investment {
   @Column()
   creator_id: string;
 
-  @ManyToOne(() => BackOfficeUser, (user) => user.id, { eager: false })
+  @OneToOne(() => BackOfficeUser, (user) => user.id, { eager: false })
   @JoinColumn({ name: 'creator_id' })
   creator: BackOfficeUser;
 
   @Column('text', { array: true })
   images: string[];
 
-  @ManyToOne(() => InvestmentCategory, (category) => category.investments, { eager: false })
+  @OneToOne(() => InvestmentCategory, (category) => category.investments, { eager: false })
   category: InvestmentCategory;
 
   @Column()
