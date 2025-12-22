@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Patch, Param, Req, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Patch, Param, Req, Get, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -24,6 +24,7 @@ import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
 import { UpdateCompanyDto } from 'src/companies/dto/update-company.dto';
 import { CreateInvestmentDto } from 'src/investments/dto/create-investment.dto';
 import { InvestmentResponseDto } from 'src/investments/dto/investment-response.dto';
+import { FetchSystemUsersRequestDto } from './dto/system-users.dto';
 
 @ApiBearerAuth()
 @Controller('back-office')
@@ -138,5 +139,16 @@ export class BackOfficeController {
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   createInvestment(@Body() payload: CreateInvestmentDto) {
     return this.investmentsService.create(payload);
+  }
+
+  @Get('get-registered-users')
+  @ApiOperation({ summary: 'Get registered users' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of registered users retrieved successfully.',
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  getRegisteredUsers(@Query() query: FetchSystemUsersRequestDto) {
+    return this.backOfficeService.getRegisteredUsers(query);
   }
 }

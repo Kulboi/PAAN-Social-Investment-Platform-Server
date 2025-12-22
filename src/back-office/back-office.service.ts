@@ -5,10 +5,12 @@ import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 
 import { BackOfficeUser } from './entities/back-office-user.entity';
+import { User } from 'src/user/entities/user.entity';
 
 import { CreateBackOfficeUserRequestDto } from './dto/create-back-office-user-request.dto';
 import { LoginBackOfficeUserRequestDto } from './dto/login-back-office-user-request.dto';
 import { RefreshBackOfficeUserTokenDto } from './dto/refresh-back-office-user-token.dto';
+import { FetchSystemUsersRequestDto } from './dto/system-users.dto';
 
 @Injectable()
 export class BackOfficeService {
@@ -18,6 +20,8 @@ export class BackOfficeService {
   constructor(
     @InjectRepository(BackOfficeUser)
     private readonly backOfficeUserRepo: Repository<BackOfficeUser>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -147,5 +151,13 @@ export class BackOfficeService {
       role: backOfficeUser.role,
       is_active: backOfficeUser.is_active,
     };
+  }
+
+  async getRegisteredUsers(payload: FetchSystemUsersRequestDto) {
+    const users = await this.userRepository.find({
+      skip: (payload.page - 1) * payload.limit,
+      take: payload.limit,
+    });
+    return users;
   }
 }

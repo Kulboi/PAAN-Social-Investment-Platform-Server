@@ -12,6 +12,7 @@ import { BackOfficeUser } from 'src/back-office/entities/back-office-user.entity
 import { InvestmentCategory } from 'src/investment-categories/entities/investment-category.entity';
 import { Investment } from 'src/investments/entities/investment.entity';
 import { Company } from 'src/companies/entities/company.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Module({
   controllers: [BackOfficeController],
@@ -28,6 +29,7 @@ import { Company } from 'src/companies/entities/company.entity';
       InvestmentCategory,
       Company,
       Investment,
+      User,
     ]),
   ],
 })
