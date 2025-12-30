@@ -21,9 +21,12 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli",
     "migration:generate": "npm run build && npx typeorm migration:generate -d data-source.ts dist/migrations/AutoMigration",
     "migration:run": "npx typeorm migration:run -d data-source.ts",
-    "migration:revert": "npx typeorm migration:revert -d data-source.ts"
+    "migration:revert": "npx typeorm migration:revert -d data-source.ts",
+    "seed": "ts-node -r tsconfig-paths/register src/seed.ts",
+    "seed:refresh": "ts-node -r tsconfig-paths/register src/seed.ts --refresh"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.1.3",
     "@nestjs/config": "^4.0.2",
@@ -42,6 +45,7 @@
     "class-validator": "^0.14.2",
     "cloudinary": "^2.7.0",
     "module": "^1.2.5",
+    "nestjs-seeder": "^0.3.2",
     "node-mailjet": "^6.0.8",
     "nodemailer": "^7.0.3",
     "passport": "^0.7.0",
