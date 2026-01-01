@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Seeder } from 'nestjs-seeder';
 import { faker } from '@faker-js/faker';
+import { ConfigService } from '@nestjs/config';
 
 import { BackOfficeUser } from './../back-office/entities/back-office-user.entity';
 
@@ -13,6 +14,7 @@ export class BackOfficeUsersSeeder implements Seeder {
   constructor(
     @InjectRepository(BackOfficeUser)
     private readonly userRepository: Repository<BackOfficeUser>,
+    private readonly configService: ConfigService,
   ) {}
 
   async seed(): Promise<any> {
@@ -31,9 +33,9 @@ export class BackOfficeUsersSeeder implements Seeder {
     const superAdminUser = this.userRepository.create({
       first_name: 'Super',
       last_name: 'Admin',
-      email: 'super_admin@paancircle.app',
-      username: 'superadmin',
-      password: 'Paancircle@256!',
+      email: this.configService.get<string>('BACK_OFFICE_SEEDER_EMAIL'),
+      username: this.configService.get<string>('BACK_OFFICE_SEEDER_USERNAME'),
+      password: this.configService.get<string>('BACK_OFFICE_SEEDER_PASSWORD'),
       role: BackOfficeUserRoleTypes.SUPER_ADMIN,
       is_active: true,
     });
