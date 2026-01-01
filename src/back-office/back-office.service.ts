@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import * as crypto from 'crypto';
+
+import { MailerService } from 'src/common/utils/mailer.service';
 
 import { BackOfficeUser } from './entities/back-office-user.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -11,11 +14,14 @@ import { CreateBackOfficeUserRequestDto } from './dto/create-back-office-user-re
 import { LoginBackOfficeUserRequestDto } from './dto/login-back-office-user-request.dto';
 import { RefreshBackOfficeUserTokenDto } from './dto/refresh-back-office-user-token.dto';
 import { FetchSystemUsersRequestDto } from './dto/system-users.dto';
+import { ForgotBackOfficeUserPasswordDto, ForgotBackOfficeUserPasswordResponseDto } from './dto/forgot-back-office-user-password.dto';
+
 
 @Injectable()
 export class BackOfficeService {
   private jwtExpirationTime = '1h';
   private refreshTokenExpirationTime = '1d';
+  private mockTokens = new Map<string, string>();
 
   constructor(
     @InjectRepository(BackOfficeUser)
@@ -23,6 +29,7 @@ export class BackOfficeService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly mailerService: MailerService,
   ) {}
 
   async createBackOfficeUser(payload: CreateBackOfficeUserRequestDto) {
@@ -133,6 +140,26 @@ export class BackOfficeService {
         refresh_token: refreshToken,
       },
     };
+  }
+
+  async ForgotPassword(payload: ForgotBackOfficeUserPasswordDto): Promise<ForgotBackOfficeUserPasswordResponseDto> {
+    // find user by email
+    const backOfficeUser = await this.backOfficeUserRepo.findOne({ where: { email: payload.email } });
+
+    // if user not found, throw NotFoundException
+    if (!backOfficeUser) {
+      throw new NotFoundException('Back office user not found');
+    }
+
+    // generate password reset token
+    const token = crypto.randomBytes(3).toString('hex'); // 6 hex characters (alphanumeric: 0-9, a-f)
+    this.mockTokens.set(token, backOfficeUser.email);
+
+    // send password reset email
+    await this.mailerService.sendForgotPasswordRequestToken(backOfficeUser.email, token);
+
+    // return response dto
+    return { message: 'Password reset link has been sent to your email' };
   }
 
   async getBackOfficeUserById(id: string) {

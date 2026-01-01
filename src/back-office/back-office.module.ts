@@ -7,6 +7,7 @@ import { BackOfficeService } from './back-office.service';
 import { InvestmentCategoriesService } from 'src/investment-categories/investment-categories.service';
 import { InvestmentsService } from 'src/investments/investments.service';
 import { CompaniesService } from 'src/companies/companies.service';
+import { MailerService } from 'src/common/utils/mailer.service';
 
 import { BackOfficeUser } from 'src/back-office/entities/back-office-user.entity';
 import { InvestmentCategory } from 'src/investment-categories/entities/investment-category.entity';
@@ -22,6 +23,7 @@ import { User } from 'src/user/entities/user.entity';
     InvestmentCategoriesService,
     InvestmentsService,
     CompaniesService,
+    MailerService,
   ],
   imports: [
     TypeOrmModule.forFeature([

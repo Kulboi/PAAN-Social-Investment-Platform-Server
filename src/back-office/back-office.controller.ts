@@ -44,6 +44,7 @@ import {
   FetchSystemUserResponseDto,
 } from './dto/system-users.dto';
 import { UpdateInvestmentDto } from 'src/investments/dto/update-investment.dto';
+import { ForgotBackOfficeUserPasswordDto } from './dto/forgot-back-office-user-password.dto';
 
 @ApiBearerAuth()
 @Controller('back-office')
@@ -101,6 +102,23 @@ export class BackOfficeController {
       user_id: req.user.id,
       refresh_token: req.user.refresh_token,
     });
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Forgot back office user password' })
+  @ApiBody({ type: ForgotBackOfficeUserPasswordDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset link has been sent to your email.',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+  forgotPassword(@Body() payload: ForgotBackOfficeUserPasswordDto) {
+    return this.backOfficeService.ForgotPassword(payload);
+  }
+
+  resetPassword() {
+    // To be implemented
   }
 
   @Post('company/create')
