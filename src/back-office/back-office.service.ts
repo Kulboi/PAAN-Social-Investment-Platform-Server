@@ -15,6 +15,7 @@ import { LoginBackOfficeUserRequestDto } from './dto/login-back-office-user-requ
 import { RefreshBackOfficeUserTokenDto } from './dto/refresh-back-office-user-token.dto';
 import { FetchSystemUsersRequestDto } from './dto/system-users.dto';
 import { ForgotBackOfficeUserPasswordDto, ForgotBackOfficeUserPasswordResponseDto } from './dto/forgot-back-office-user-password.dto';
+import { ResetBackOfficeUserPasswordRequestDto, ResetBackOfficeUserPasswordResponseDto } from './dto/reset-back-office-user-password.dto';
 
 
 @Injectable()
@@ -160,6 +161,34 @@ export class BackOfficeService {
 
     // return response dto
     return { message: 'Password reset link has been sent to your email' };
+  }
+
+  async resetBackOfficeUserPassword(payload: ResetBackOfficeUserPasswordRequestDto): Promise<ResetBackOfficeUserPasswordResponseDto> {
+    // verify token
+    const email = this.mockTokens.get(payload.token);
+    if (!email) {
+      throw new NotFoundException('Invalid or expired token');
+    }
+
+    // find user by email
+    const backOfficeUser = await this.backOfficeUserRepo.findOne({ where: { email } });
+
+    // if user not found, throw NotFoundException
+    if (!backOfficeUser) {
+      throw new NotFoundException('Back office user not found');
+    }
+
+    // hash new password
+    const hashedPassword = await bcrypt.hash(payload.new_password, 10);
+
+    // update user's password
+    backOfficeUser.password = hashedPassword;
+    await this.backOfficeUserRepo.save(backOfficeUser);
+
+    // invalidate token
+    this.mockTokens.delete(payload.token);
+
+    return { message: 'Password reset successful' };
   }
 
   async getBackOfficeUserById(id: string) {

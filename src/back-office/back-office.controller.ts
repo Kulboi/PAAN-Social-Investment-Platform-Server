@@ -45,6 +45,7 @@ import {
 } from './dto/system-users.dto';
 import { UpdateInvestmentDto } from 'src/investments/dto/update-investment.dto';
 import { ForgotBackOfficeUserPasswordDto } from './dto/forgot-back-office-user-password.dto';
+import { ResetBackOfficeUserPasswordRequestDto } from './dto/reset-back-office-user-password.dto';
 
 @ApiBearerAuth()
 @Controller('back-office')
@@ -117,8 +118,17 @@ export class BackOfficeController {
     return this.backOfficeService.ForgotPassword(payload);
   }
 
-  resetPassword() {
-    // To be implemented
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset back office user password' })
+  @ApiBody({ type: ResetBackOfficeUserPasswordRequestDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password reset successful.',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Invalid or expired token' })
+  resetPassword(@Body() payload: ResetBackOfficeUserPasswordRequestDto) {
+    return this.backOfficeService.resetBackOfficeUserPassword(payload);
   }
 
   @Post('company/create')
