@@ -50,7 +50,6 @@ import { ResetBackOfficeUserPasswordRequestDto } from './dto/reset-back-office-u
 @ApiBearerAuth()
 @Controller('back-office')
 @ApiTags('Back Office')
-@UseGuards(JwtAuthGuard, AdminRoleGuard)
 export class BackOfficeController {
   constructor(
     private readonly backOfficeService: BackOfficeService,
@@ -71,6 +70,7 @@ export class BackOfficeController {
     status: HttpStatus.CONFLICT,
     description: 'Back office user with this email already exists',
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   register(@Body() payload: CreateBackOfficeUserRequestDto) {
     return this.backOfficeService.createBackOfficeUser(payload);
   }
@@ -86,6 +86,7 @@ export class BackOfficeController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid credentials' })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   login(@Body() payload: LoginBackOfficeUserRequestDto) {
     return this.backOfficeService.loginBackOfficeUser(payload);
   }
@@ -98,6 +99,7 @@ export class BackOfficeController {
     type: CreateBackOfficeUserResponseDto,
   })
   @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   refreshToken(@Req() req) {
     return this.backOfficeService.refreshToken({
       user_id: req.user.id,
@@ -127,6 +129,7 @@ export class BackOfficeController {
     description: 'Password reset successful.',
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Invalid or expired token' })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   resetPassword(@Body() payload: ResetBackOfficeUserPasswordRequestDto) {
     return this.backOfficeService.resetBackOfficeUserPassword(payload);
   }
@@ -139,6 +142,7 @@ export class BackOfficeController {
     status: HttpStatus.CREATED,
     description: 'Company created successfully.',
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async createCompany(@Body() payload: CreateCompanyDto) {
     return this.companiesService.createCompany(payload);
   }
@@ -151,6 +155,7 @@ export class BackOfficeController {
     status: HttpStatus.OK,
     description: 'Company updated successfully.',
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async updateCompany(
     @Param('id') id: string,
     @Body() payload: UpdateCompanyDto,
@@ -166,6 +171,7 @@ export class BackOfficeController {
     status: HttpStatus.OK,
     description: 'Company deleted successfully.',
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async deleteCompany(@Param('id') id: string) {
     return this.companiesService.deleteCompany(id);
   }
@@ -178,6 +184,7 @@ export class BackOfficeController {
     status: HttpStatus.CREATED,
     description: 'Investment category created successfully.',
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async createInvestmentCategory(@Body() payload: CreateInvestmentCategoryDto) {
     return this.investmentCategoriesService.createInvestmentCategory(payload);
   }
@@ -190,6 +197,7 @@ export class BackOfficeController {
     status: HttpStatus.OK,
     description: 'Investment category updated successfully.',
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async updateInvestmentCategory(@Body() payload: UpdateInvestmentCategoryDto) {
     return this.investmentCategoriesService.updateInvestmentCategory(payload);
   }
@@ -202,6 +210,7 @@ export class BackOfficeController {
     status: HttpStatus.OK,
     description: 'Investment category deleted successfully.',
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async deleteInvestmentCategory(@Param('name') name: string) {
     return this.investmentCategoriesService.deleteInvestmentCategory(name);
   }
@@ -215,6 +224,7 @@ export class BackOfficeController {
     description: 'Investment created successfully',
     type: InvestmentResponseDto,
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   createInvestment(@Body() payload: CreateInvestmentDto) {
     return this.investmentsService.create(payload);
   }
@@ -229,6 +239,7 @@ export class BackOfficeController {
     description: 'Investment updated successfully',
     type: InvestmentResponseDto,
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async update(
     @Param('id') id: string,
     @Body() updateInvestmentDto: UpdateInvestmentDto,
@@ -242,6 +253,7 @@ export class BackOfficeController {
   @ApiOperation({ summary: 'Delete investment' })
   @ApiParam({ name: 'id', description: 'Investment ID', type: Number })
   @ApiResponse({ status: HttpStatus.OK, description: 'Investment deleted successfully' })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async remove(@Param('id') id: string, @Request() req: any): Promise<{ message: string }> {
     return this.investmentsService.remove(id, req.user.id);
   }
@@ -253,6 +265,7 @@ export class BackOfficeController {
     description: 'List of registered users retrieved successfully.',
     type: [FetchSystemUserResponseDto],
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   getRegisteredUsers(@Query() query: FetchSystemUsersRequestDto) {
     return this.backOfficeService.getRegisteredUsers(query);
   }
@@ -264,6 +277,7 @@ export class BackOfficeController {
     description: 'Registered user retrieved successfully.',
     type: FetchSystemUserResponseDto,
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   getRegisteredUserById(@Param('id') id: string) {
     return this.backOfficeService.getRegisteredUserById(id);
   }
@@ -276,6 +290,7 @@ export class BackOfficeController {
       'List of registered users matching the search keyword retrieved successfully.',
     type: [FetchSystemUserResponseDto],
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   searchRegisteredUsers(@Query('keyword') keyword: string) {
     return this.backOfficeService.searchRegisteredUsers(keyword);
   }
@@ -287,6 +302,7 @@ export class BackOfficeController {
     description: 'Registered user status updated successfully.',
     type: FetchSystemUserResponseDto,
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   updateRegisteredUserStatus(@Param('id') id: string, @Body() payload) {
     return this.backOfficeService.updateRegisteredUserInfo(id, payload);
   }
@@ -297,6 +313,7 @@ export class BackOfficeController {
     status: 200,
     description: 'Registered user activated successfully.',
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   activateRegisteredUser(@Param('id') id: string) {
     return this.backOfficeService.activateRegisteredUser(id);
   }
@@ -307,6 +324,7 @@ export class BackOfficeController {
     status: 200,
     description: 'Registered user deactivated successfully.',
   })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   deactivateRegisteredUser(@Param('id') id: string) {
     return this.backOfficeService.deactivateRegisteredUser(id);
   }
