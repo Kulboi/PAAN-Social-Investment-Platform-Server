@@ -46,6 +46,7 @@ import {
 import { UpdateInvestmentDto } from 'src/investments/dto/update-investment.dto';
 import { ForgotBackOfficeUserPasswordDto } from './dto/forgot-back-office-user-password.dto';
 import { ResetBackOfficeUserPasswordRequestDto } from './dto/reset-back-office-user-password.dto';
+import { ChangeBackOfficeUserRequestDto } from './dto/change-back-office-user-password.dto';
 
 @ApiBearerAuth()
 @Controller('back-office')
@@ -132,6 +133,20 @@ export class BackOfficeController {
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   resetPassword(@Body() payload: ResetBackOfficeUserPasswordRequestDto) {
     return this.backOfficeService.resetBackOfficeUserPassword(payload);
+  }
+
+  @Patch('change-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Change back office user password' })
+  @ApiBody({ type: ChangeBackOfficeUserRequestDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Password change successful.',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  changePassword(@Body() payload: ChangeBackOfficeUserRequestDto, @Req() req) {
+    return this.backOfficeService.changeBackOfficeUserPassword(payload, req.user.email);
   }
 
   @Post('company/create')

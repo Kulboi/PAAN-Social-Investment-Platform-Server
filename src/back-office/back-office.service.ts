@@ -16,7 +16,7 @@ import { RefreshBackOfficeUserTokenDto } from './dto/refresh-back-office-user-to
 import { FetchSystemUsersRequestDto } from './dto/system-users.dto';
 import { ForgotBackOfficeUserPasswordDto, ForgotBackOfficeUserPasswordResponseDto } from './dto/forgot-back-office-user-password.dto';
 import { ResetBackOfficeUserPasswordRequestDto, ResetBackOfficeUserPasswordResponseDto } from './dto/reset-back-office-user-password.dto';
-
+import { ChangeBackOfficeUserRequestDto, ChangeBackOfficeUserResponseDto } from './dto/change-back-office-user-password.dto';
 
 @Injectable()
 export class BackOfficeService {
@@ -189,6 +189,17 @@ export class BackOfficeService {
     this.mockTokens.delete(payload.token);
 
     return { message: 'Password reset successful' };
+  }
+
+  async changeBackOfficeUserPassword(payload: ChangeBackOfficeUserRequestDto, email: string): Promise<ChangeBackOfficeUserResponseDto> {
+    const backOfficeUser = await this.backOfficeUserRepo.findOne({ where: { email } });
+    if (!backOfficeUser) {
+      throw new NotFoundException('Back office user not found');
+    }
+    backOfficeUser.password = await bcrypt.hash(payload.new_password, 10);
+    await this.backOfficeUserRepo.save(backOfficeUser);
+
+    return { message: 'Password change successful' };
   }
 
   async getBackOfficeUserById(id: string) {
