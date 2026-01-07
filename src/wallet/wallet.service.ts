@@ -119,6 +119,7 @@ export class WalletService {
     await this.mailerService.sendDepositSuccessNotification({
       to: user.email,
       reference: dto.transactionRef,
+      amount: dto.amount,
       balance: wallet.balance,
     });
 

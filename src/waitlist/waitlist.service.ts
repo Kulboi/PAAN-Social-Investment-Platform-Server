@@ -2,6 +2,8 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { MailerService } from 'src/common/utils/mailer.service';
+
 import { Waitlist } from './entities/waitlist.entity';
 
 import { AddToWaitlistDtoRequest, AddToWaitlistDtoResponse } from './dto/add-to-waitlist.dto';
@@ -13,6 +15,7 @@ export class WaitlistService {
   constructor(
     @InjectRepository(Waitlist)
     private readonly waitlistRepository: Repository<Waitlist>,
+    private readonly mailerService: MailerService,
   ) {}
 
   async addToWaitlist(payload: AddToWaitlistDtoRequest): Promise<AddToWaitlistDtoResponse> {
@@ -23,6 +26,7 @@ export class WaitlistService {
 
     const waitlistEntry = this.waitlistRepository.create({ email: payload.email, fullname: payload.fullname });
     await this.waitlistRepository.save(waitlistEntry);
+    await this.mailerService.sendWaitlistConfirmation({ to: payload.email, fullname: payload.fullname });
     return { message: 'Successfully added to waitlist' };
   }
 
