@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -14,6 +14,11 @@ export class WaitlistService {
   ) {}
 
   async addToWaitlist(payload: AddToWaitlistDtoRequest): Promise<AddToWaitlistDtoResponse> {
+    const emailExists = await this.waitlistRepository.findOneBy({ email: payload.email });
+    if (emailExists) {
+      throw new ConflictException('Email already exists in waitlist');
+    }
+
     const waitlistEntry = this.waitlistRepository.create({ email: payload.email, fullname: payload.fullname });
     await this.waitlistRepository.save(waitlistEntry);
     return { message: 'Successfully added to waitlist' };
