@@ -12,7 +12,7 @@ import { FetchInvestmentCategoriesDto } from './dto/fetch-investment-categories.
 @ApiBearerAuth()
 @ApiTags('Investment Categories')
 @UseGuards(JwtAuthGuard)
-@Controller('investment-categories')
+@Controller('/api/v1/investment-categories')
 export class InvestmentCategoriesController {
   constructor(private readonly investmentCategoriesService: InvestmentCategoriesService) {}
 

@@ -10,7 +10,7 @@ import { AddToWaitlistDtoRequest, AddToWaitlistDtoResponse } from './dto/add-to-
 import { GetWaitlistDto } from './dto/get-waitlist.dto';
 import { PaginationQueryDto, PaginatedResponseDto } from './dto/pagination.dto';
 
-@Controller('waitlist')
+@Controller('/api/v1/waitlist')
 @ApiTags('Waitlist')
 export class WaitlistController {
   constructor(private readonly waitlistService: WaitlistService) {}

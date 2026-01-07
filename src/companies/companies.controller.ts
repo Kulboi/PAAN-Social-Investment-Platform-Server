@@ -10,7 +10,7 @@ import { Company } from './entities/company.entity';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @ApiTags('Companies')
-@Controller('companies')
+@Controller('/api/v1/companies')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 export class CompaniesController {

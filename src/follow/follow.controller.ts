@@ -9,8 +9,8 @@ import { Follow } from './entities/follow.entity';
 
 import { FollowDto } from './dto/follow.dto';
 
-@Controller('follow')
-@ApiTags('api/v1/Follow')
+@Controller('/api/v1/follow')
+@ApiTags('Follow')
 @UseGuards(JwtAuthGuard)
 export class FollowController {
   constructor(private readonly followService: FollowService) {}

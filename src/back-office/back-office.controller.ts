@@ -49,7 +49,7 @@ import { ResetBackOfficeUserPasswordRequestDto } from './dto/reset-back-office-u
 import { ChangeBackOfficeUserRequestDto } from './dto/change-back-office-user-password.dto';
 
 @ApiBearerAuth()
-@Controller('back-office')
+@Controller('/api/v1/back-office')
 @ApiTags('Back Office')
 export class BackOfficeController {
   constructor(
