@@ -21,6 +21,7 @@ import { AppController } from './app.controller';
 import { BackOfficeModule } from './back-office/back-office.module';
 import { InvestmentCategoriesModule } from './investment-categories/investment-categories.module';
 import { CompaniesModule } from './companies/companies.module';
+import { WaitlistModule } from './waitlist/waitlist.module';
 
 @Module({
   imports: [
@@ -50,7 +51,8 @@ import { CompaniesModule } from './companies/companies.module';
     NotificationsModule,
     BackOfficeModule,
     InvestmentCategoriesModule,
-    CompaniesModule
+    CompaniesModule,
+    WaitlistModule
   ],
   providers: [JwtStrategy, RtStrategy],
   controllers: [AppController],
