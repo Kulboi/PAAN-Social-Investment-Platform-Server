@@ -1,9 +1,14 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { WaitlistService } from './waitlist.service';
 import { WaitlistController } from './waitlist.controller';
 
+import { Waitlist } from './entities/waitlist.entity';
+
 @Module({
   providers: [WaitlistService],
-  controllers: [WaitlistController]
+  controllers: [WaitlistController],
+  imports: [TypeOrmModule.forFeature([Waitlist])],
 })
 export class WaitlistModule {}
