@@ -16,12 +16,12 @@ import { FeedModule } from './feed/feed.module';
 import { FollowModule } from './follow/follow.module';
 import { InvestmentsModule } from './investments/investments.module';
 import { NotificationsModule } from './notifications/notifications.module';
-
-import { AppController } from './app.controller';
 import { BackOfficeModule } from './back-office/back-office.module';
 import { InvestmentCategoriesModule } from './investment-categories/investment-categories.module';
 import { CompaniesModule } from './companies/companies.module';
 import { WaitlistModule } from './waitlist/waitlist.module';
+
+import { AppController } from './app.controller';
 
 @Module({
   imports: [

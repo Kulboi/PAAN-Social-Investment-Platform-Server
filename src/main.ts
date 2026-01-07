@@ -26,7 +26,6 @@ async function bootstrap() {
     .setTitle('PAAN API Server')
     .setDescription('Documentation for the PAAN API Server')
     .setVersion('1.0')
-    .addTag('paan')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, documentFactory);

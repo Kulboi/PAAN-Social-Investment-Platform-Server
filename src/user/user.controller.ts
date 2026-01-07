@@ -28,6 +28,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { UpdateUserDto, ChangePasswordDto } from './dto/user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 
+@ApiTags('Users')
 @Controller('api/v1/users')
 @UseGuards(JwtAuthGuard)
 export class UserController {
