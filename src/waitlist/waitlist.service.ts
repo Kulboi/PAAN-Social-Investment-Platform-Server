@@ -26,7 +26,11 @@ export class WaitlistService {
 
     const waitlistEntry = this.waitlistRepository.create({ email: payload.email, fullname: payload.fullname });
     await this.waitlistRepository.save(waitlistEntry);
-    await this.mailerService.sendWaitlistConfirmation({ to: payload.email, fullname: payload.fullname });
+    try {
+      await this.mailerService.sendWaitlistConfirmation({ to: payload.email, fullname: payload.fullname });
+    } catch (error) {
+      console.error(error);
+    }
     return { message: 'Successfully added to waitlist' };
   }
 
