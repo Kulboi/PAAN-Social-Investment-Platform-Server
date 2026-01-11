@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Seeder } from 'nestjs-seeder';
 import { faker } from '@faker-js/faker';
 import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcryptjs';
 
 import { BackOfficeUser } from './../back-office/entities/back-office-user.entity';
 
@@ -18,24 +19,14 @@ export class BackOfficeUsersSeeder implements Seeder {
   ) {}
 
   async seed(): Promise<any> {
-    // const users = Array.from({ length: 2 }).map(() => {
-    //   return this.userRepository.create({
-    //     first_name: faker.person.firstName(),
-    //     last_name: faker.person.lastName(),
-    //     email: faker.internet.email(),
-    //     username: faker.internet.userName(),
-    //     password: faker.internet.password({ length: 10 }),
-    //     role: BackOfficeUserRoleTypes.SUPER_ADMIN,
-    //     is_active: true,
-    //   });
-    // });
+    const hashedPassword = await bcrypt.hash(this.configService.get<string>('BACK_OFFICE_SEEDER_PASSWORD'), 10);
 
     const superAdminUser = this.userRepository.create({
       first_name: 'Super',
       last_name: 'Admin',
       email: this.configService.get<string>('BACK_OFFICE_SEEDER_EMAIL'),
       username: this.configService.get<string>('BACK_OFFICE_SEEDER_USERNAME'),
-      password: this.configService.get<string>('BACK_OFFICE_SEEDER_PASSWORD'),
+      password: hashedPassword,
       role: BackOfficeUserRoleTypes.SUPER_ADMIN,
       is_active: true,
     });

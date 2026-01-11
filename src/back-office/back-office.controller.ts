@@ -87,7 +87,6 @@ export class BackOfficeController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid credentials' })
-  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   login(@Body() payload: LoginBackOfficeUserRequestDto) {
     return this.backOfficeService.loginBackOfficeUser(payload);
   }
