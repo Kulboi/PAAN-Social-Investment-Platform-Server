@@ -103,7 +103,7 @@ export class BackOfficeController {
     type: LogoutBackOfficeUserResponseDto,
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
-    @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
   logout(@Body() payload: LogoutBackOfficeUserDto, @Req() req) {
     return this.backOfficeService.logoutBackOfficeUser(req.user.id, payload.token);
   }
