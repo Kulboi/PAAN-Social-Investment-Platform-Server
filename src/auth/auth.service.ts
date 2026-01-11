@@ -156,7 +156,7 @@ export class AuthService {
       secret: process.env.JWT_SECRET,
     });
     const refreshToken = this.jwtService.sign(
-      { sub: user.id },
+      { sub: user.id, email: user.email },
       {
         secret: process.env.REFRESH_TOKEN_SECRET,
         expiresIn: this.refreshTokenExpirationTime,
@@ -227,14 +227,14 @@ export class AuthService {
     if (!rtMatches) throw new ForbiddenException('Invalid Refresh Token');
 
     const newAccessToken = this.jwtService.sign(
-      { sub: user.id },
+      { sub: user.id, email: user.email },
       {
         expiresIn: this.jwtExpirationTime,
         secret: process.env.JWT_SECRET,
       },
     );
     const newRefreshToken = this.jwtService.sign(
-      { sub: user.id },
+      { sub: user.id, email: user.email },
       {
         secret: process.env.REFRESH_TOKEN_SECRET,
         expiresIn: this.refreshTokenExpirationTime,

@@ -14,6 +14,7 @@ import { InvestmentCategory } from 'src/investment-categories/entities/investmen
 import { Investment } from 'src/investments/entities/investment.entity';
 import { Company } from 'src/companies/entities/company.entity';
 import { User } from 'src/user/entities/user.entity';
+import { TokenBlacklist } from 'src/auth/entities/token-blacklist.entity';
 
 @Module({
   controllers: [BackOfficeController],
@@ -32,6 +33,7 @@ import { User } from 'src/user/entities/user.entity';
       Company,
       Investment,
       User,
+      TokenBlacklist,
     ]),
   ],
 })

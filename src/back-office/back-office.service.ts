@@ -1,6 +1,6 @@
 import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
@@ -9,6 +9,7 @@ import { MailerService } from 'src/common/utils/mailer.service';
 
 import { BackOfficeUser } from './entities/back-office-user.entity';
 import { User } from 'src/user/entities/user.entity';
+import { TokenBlacklist } from 'src/auth/entities/token-blacklist.entity';
 
 import { CreateBackOfficeUserRequestDto } from './dto/create-back-office-user-request.dto';
 import { LoginBackOfficeUserRequestDto } from './dto/login-back-office-user-request.dto';
@@ -30,6 +31,8 @@ export class BackOfficeService {
     private readonly backOfficeUserRepo: Repository<BackOfficeUser>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(TokenBlacklist)
+    private readonly tokenBlacklistRepo: Repository<TokenBlacklist>,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
   ) {}
@@ -107,6 +110,27 @@ export class BackOfficeService {
     };
   }
 
+  async logoutBackOfficeUser(userId: string, accessToken: string) {
+    const backOfficeUser = await this.backOfficeUserRepo.findOneBy({ id: userId });
+
+    if (!backOfficeUser) {
+      throw new NotFoundException('Back office user not found');
+    }
+
+    await this.backOfficeUserRepo.update(userId, { hashedRt: null });
+
+    const decoded = this.jwtService.decode(accessToken) as any;
+    if (decoded && decoded.exp) {
+      await this.tokenBlacklistRepo.save({
+        token: accessToken,
+        userId: userId,
+        expires_at: new Date(decoded.exp * 1000),
+      });
+    }
+
+    return { message: 'Logged out successfully' };
+  }
+
   async refreshToken(payload: RefreshBackOfficeUserTokenDto) {
     const backOfficeUser = await this.backOfficeUserRepo.findOneBy({ id: payload.user_id });
 
@@ -120,7 +144,7 @@ export class BackOfficeService {
       throw new BadRequestException('Invalid refresh token');
     }
 
-    const backOfficeUserPayload = { id: backOfficeUser.id, email: backOfficeUser.email, role: backOfficeUser.role };
+    const backOfficeUserPayload = { sub: backOfficeUser.id, email: backOfficeUser.email, role: backOfficeUser.role };
     const token = this.jwtService.sign(backOfficeUserPayload, {
       expiresIn: this.jwtExpirationTime,
       secret: process.env.JWT_SECRET,

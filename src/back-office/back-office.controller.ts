@@ -92,6 +92,19 @@ export class BackOfficeController {
     return this.backOfficeService.loginBackOfficeUser(payload);
   }
 
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Logout back office user' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'The back office user has been successfully logged out.',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  logout(@Req() req) {
+    return this.backOfficeService.logoutBackOfficeUser(req.user.id, req.user.access_token);
+  }
+
   @Get('refresh-token')
   @ApiOperation({ summary: 'Refresh back office user JWT token' })
   @ApiResponse({
