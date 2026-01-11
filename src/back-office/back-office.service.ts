@@ -75,16 +75,15 @@ export class BackOfficeService {
 
     if (!findBackOfficeUser) throw new NotFoundException('User not found');
 
-    const isPasswordValid = await bcrypt.compare(
-      payload.password,
-      findBackOfficeUser.password,
-    );
-
     if (!findBackOfficeUser || !(await bcrypt.compare(payload.password, findBackOfficeUser.password))) {
       throw new BadRequestException('Invalid credentials');
     }
 
-    const backOfficeUserPayload = { id: findBackOfficeUser.id, email: findBackOfficeUser.email, role: findBackOfficeUser.role };
+    const backOfficeUserPayload = {
+      sub: findBackOfficeUser.id, 
+      email: findBackOfficeUser.email, 
+      role: findBackOfficeUser.role 
+    };
     const token = this.jwtService.sign(backOfficeUserPayload, {
       expiresIn: this.jwtExpirationTime,
       secret: process.env.JWT_SECRET,

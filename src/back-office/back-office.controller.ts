@@ -144,8 +144,20 @@ export class BackOfficeController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
-  changePassword(@Body() payload: ChangeBackOfficeUserRequestDto, @Req() req) {
+  async changePassword(@Body() payload: ChangeBackOfficeUserRequestDto, @Req() req) {
     return this.backOfficeService.changeBackOfficeUserPassword(payload, req.user.email);
+  }
+
+  @Get('users/me')
+  @ApiOperation({ summary: 'Get back office user info' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Back office user retrieved successfully.',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Back office user not found' })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  async getBackOfficeUserById(@Req() req) {
+    return this.backOfficeService.getBackOfficeUserById(req.user.id);
   }
 
   @Post('company/create')
