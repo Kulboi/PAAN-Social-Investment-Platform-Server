@@ -19,6 +19,7 @@ import { ForgotBackOfficeUserPasswordDto, ForgotBackOfficeUserPasswordResponseDt
 import { ResetBackOfficeUserPasswordRequestDto, ResetBackOfficeUserPasswordResponseDto } from './dto/reset-back-office-user-password.dto';
 import { ChangeBackOfficeUserRequestDto, ChangeBackOfficeUserResponseDto } from './dto/change-back-office-user-password.dto';
 import { UpdateBackOfficeUserRequestDto, UpdateBackOfficeUserResponseDto } from './dto/update-back-office-user.dto';
+import { LogoutBackOfficeUserResponseDto } from './dto/logout-back-office-user.dto';
 
 @Injectable()
 export class BackOfficeService {
@@ -110,7 +111,7 @@ export class BackOfficeService {
     };
   }
 
-  async logoutBackOfficeUser(userId: string, accessToken: string) {
+  async logoutBackOfficeUser(userId: string, accessToken: string): Promise<LogoutBackOfficeUserResponseDto> {
     const backOfficeUser = await this.backOfficeUserRepo.findOneBy({ id: userId });
 
     if (!backOfficeUser) {
@@ -128,7 +129,10 @@ export class BackOfficeService {
       });
     }
 
-    return { message: 'Logged out successfully' };
+    return { 
+      message: 'Successfully logged out',
+      instructions: 'Please clear access and refresh tokens from client storage',
+    };
   }
 
   async refreshToken(payload: RefreshBackOfficeUserTokenDto) {

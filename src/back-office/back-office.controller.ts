@@ -48,6 +48,7 @@ import { ForgotBackOfficeUserPasswordDto } from './dto/forgot-back-office-user-p
 import { ResetBackOfficeUserPasswordRequestDto } from './dto/reset-back-office-user-password.dto';
 import { ChangeBackOfficeUserRequestDto } from './dto/change-back-office-user-password.dto';
 import { UpdateBackOfficeUserRequestDto } from './dto/update-back-office-user.dto';
+import { LogoutBackOfficeUserDto, LogoutBackOfficeUserResponseDto } from './dto/logout-back-office-user.dto';
 
 @ApiBearerAuth()
 @Controller('/api/v1/back-office')
@@ -95,14 +96,16 @@ export class BackOfficeController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Logout back office user' })
+  @ApiBody({ type: LogoutBackOfficeUserDto })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'The back office user has been successfully logged out.',
+    type: LogoutBackOfficeUserResponseDto,
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
-  @UseGuards(JwtAuthGuard, AdminRoleGuard)
-  logout(@Req() req) {
-    return this.backOfficeService.logoutBackOfficeUser(req.user.id, req.user.access_token);
+    @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  logout(@Body() payload: LogoutBackOfficeUserDto, @Req() req) {
+    return this.backOfficeService.logoutBackOfficeUser(req.user.id, payload.token);
   }
 
   @Get('refresh-token')
