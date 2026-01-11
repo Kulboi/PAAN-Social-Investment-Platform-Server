@@ -47,6 +47,7 @@ import { UpdateInvestmentDto } from 'src/investments/dto/update-investment.dto';
 import { ForgotBackOfficeUserPasswordDto } from './dto/forgot-back-office-user-password.dto';
 import { ResetBackOfficeUserPasswordRequestDto } from './dto/reset-back-office-user-password.dto';
 import { ChangeBackOfficeUserRequestDto } from './dto/change-back-office-user-password.dto';
+import { UpdateBackOfficeUserRequestDto } from './dto/update-back-office-user.dto';
 
 @ApiBearerAuth()
 @Controller('/api/v1/back-office')
@@ -158,6 +159,23 @@ export class BackOfficeController {
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async getBackOfficeUserById(@Req() req) {
     return this.backOfficeService.getBackOfficeUserById(req.user.id);
+  }
+
+  @Patch('users/me')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update back office user info' })
+  @ApiBody({ type: UpdateBackOfficeUserRequestDto })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Back office user info updated successfully.',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Back office user not found' })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  async updateBackOfficeUserInfo(
+    @Body() payload: UpdateBackOfficeUserRequestDto,
+    @Req() req,
+  ) {
+    return this.backOfficeService.updateBackOfficeUserInfo(req.user.id, payload);
   }
 
   @Post('company/create')

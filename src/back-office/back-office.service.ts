@@ -17,6 +17,7 @@ import { FetchSystemUsersRequestDto } from './dto/system-users.dto';
 import { ForgotBackOfficeUserPasswordDto, ForgotBackOfficeUserPasswordResponseDto } from './dto/forgot-back-office-user-password.dto';
 import { ResetBackOfficeUserPasswordRequestDto, ResetBackOfficeUserPasswordResponseDto } from './dto/reset-back-office-user-password.dto';
 import { ChangeBackOfficeUserRequestDto, ChangeBackOfficeUserResponseDto } from './dto/change-back-office-user-password.dto';
+import { UpdateBackOfficeUserRequestDto, UpdateBackOfficeUserResponseDto } from './dto/update-back-office-user.dto';
 
 @Injectable()
 export class BackOfficeService {
@@ -216,6 +217,25 @@ export class BackOfficeService {
       username: backOfficeUser.username,
       role: backOfficeUser.role,
       is_active: backOfficeUser.is_active,
+    };
+  }
+
+  async updateBackOfficeUserInfo(id: string, updateData: UpdateBackOfficeUserRequestDto): Promise<UpdateBackOfficeUserResponseDto> {
+    const backOfficeUser = await this.backOfficeUserRepo.findOneBy({ id });
+
+    if (!backOfficeUser) {
+      throw new NotFoundException('Back office user not found');
+    }
+
+    Object.assign(backOfficeUser, updateData);
+    const updatedBackOfficeUser = await this.backOfficeUserRepo.save(backOfficeUser);
+
+    return {
+      id: updatedBackOfficeUser.id,
+      first_name: updatedBackOfficeUser.first_name,
+      last_name: updatedBackOfficeUser.last_name,
+      email: updatedBackOfficeUser.email,
+      username: updatedBackOfficeUser.username,
     };
   }
 
