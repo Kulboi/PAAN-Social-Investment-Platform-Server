@@ -367,7 +367,7 @@ export class BackOfficeController {
     return this.backOfficeService.updateRegisteredUserInfo(id, payload);
   }
 
-  @Get('registered-user/activate/:id')
+  @Patch('registered-user/activate/:id')
   @ApiOperation({ summary: 'Activate registered user' })
   @ApiResponse({
     status: 200,
@@ -378,7 +378,7 @@ export class BackOfficeController {
     return this.backOfficeService.activateRegisteredUser(id);
   }
 
-  @Get('registered-user/deactivate/:id')
+  @Patch('registered-user/deactivate/:id')
   @ApiOperation({ summary: 'Deactivate registered user' })
   @ApiResponse({
     status: 200,
