@@ -326,7 +326,7 @@ export class BackOfficeController {
     type: [FetchSystemUserResponseDto],
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
-  getRegisteredUsers(@Query() query: FetchSystemUsersRequestDto) {
+  async getRegisteredUsers(@Query() query: FetchSystemUsersRequestDto) {
     return this.backOfficeService.getRegisteredUsers(query);
   }
 
@@ -338,21 +338,8 @@ export class BackOfficeController {
     type: FetchSystemUserResponseDto,
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
-  getRegisteredUserById(@Param('id') id: string) {
+  async getRegisteredUserById(@Param('id') id: string) {
     return this.backOfficeService.getRegisteredUserById(id);
-  }
-
-  @Get('registered-users/search')
-  @ApiOperation({ summary: 'Search registered users' })
-  @ApiResponse({
-    status: 200,
-    description:
-      'List of registered users matching the search keyword retrieved successfully.',
-    type: [FetchSystemUserResponseDto],
-  })
-  @UseGuards(JwtAuthGuard, AdminRoleGuard)
-  searchRegisteredUsers(@Query('keyword') keyword: string) {
-    return this.backOfficeService.searchRegisteredUsers(keyword);
   }
 
   @Patch('registered-users/update/:id')

@@ -15,6 +15,14 @@ export class FetchSystemUsersRequestDto {
     example: 10,
   })
   limit: number;
+
+  @IsOptional()
+  @ApiProperty({
+    description: 'Search query to filter users by name or email',
+    example: 'john',
+    required: false,
+  })
+  query?: string;
 }
 
 export class FetchSystemUserResponseDto {
@@ -33,6 +41,15 @@ export class FetchSystemUserResponseDto {
     example: 'John',
   })
   first_name: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Middle name of the user',
+    example: 'William',
+    required: false,
+  })
+  middle_name?: string;
 
   @IsNotEmpty()
   @IsString()
@@ -53,16 +70,9 @@ export class FetchSystemUserResponseDto {
   @IsString()
   @IsOptional()
   @ApiProperty({
-    description: 'Username of the user',
-    example: 'johndoe',
+    description: 'Profile image URL of the user',
+    example: 'https://example.com/images/johndoe.jpg',
     required: false,
   })
-  username?: string;
-
-  @IsNotEmpty()
-  @ApiProperty({
-    description: 'Indicates whether the user is active',
-    example: true,
-  })
-  is_active: boolean;
+  profile_image?: string;
 }

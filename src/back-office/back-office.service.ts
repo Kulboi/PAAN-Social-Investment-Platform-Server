@@ -14,7 +14,7 @@ import { TokenBlacklist } from 'src/auth/entities/token-blacklist.entity';
 import { CreateBackOfficeUserRequestDto } from './dto/create-back-office-user-request.dto';
 import { LoginBackOfficeUserRequestDto } from './dto/login-back-office-user-request.dto';
 import { RefreshBackOfficeUserTokenDto } from './dto/refresh-back-office-user-token.dto';
-import { FetchSystemUsersRequestDto } from './dto/system-users.dto';
+import { FetchSystemUsersRequestDto, FetchSystemUserResponseDto } from './dto/system-users.dto';
 import { ForgotBackOfficeUserPasswordDto, ForgotBackOfficeUserPasswordResponseDto } from './dto/forgot-back-office-user-password.dto';
 import { ResetBackOfficeUserPasswordRequestDto, ResetBackOfficeUserPasswordResponseDto } from './dto/reset-back-office-user-password.dto';
 import { ChangeBackOfficeUserRequestDto, ChangeBackOfficeUserResponseDto } from './dto/change-back-office-user-password.dto';
@@ -267,12 +267,27 @@ export class BackOfficeService {
     };
   }
 
-  async getRegisteredUsers(payload: FetchSystemUsersRequestDto): Promise<User[]> {
+  async getRegisteredUsers(payload: FetchSystemUsersRequestDto): Promise<FetchSystemUserResponseDto[]> {
     const users = await this.userRepository.find({
       skip: (payload.page - 1) * payload.limit,
       take: payload.limit,
+      where: {
+        ...(payload.query && [
+          { first_name: In([`%${payload.query}%`]) },
+          { last_name: In([`%${payload.query}%`]) },
+          { email: In([`%${payload.query}%`]) },
+        ]),
+      }
     });
-    return users;
+    
+    return users.map((user) => ({
+      id: user.id,
+      first_name: user.first_name,
+      middle_name: user.middle_name,
+      last_name: user.last_name,
+      email: user.email,
+      profile_image: user.profile_image,
+    }));
   }
 
   async getRegisteredUserById(id: string): Promise<User> {
@@ -283,17 +298,6 @@ export class BackOfficeService {
     }
 
     return user;
-  }
-
-  async searchRegisteredUsers(keyword: string): Promise<User[]> {
-    const users = await this.userRepository
-      .createQueryBuilder('user')
-      .where('user.first_name ILIKE :keyword', { keyword: `%${keyword}%` })
-      .orWhere('user.last_name ILIKE :keyword', { keyword: `%${keyword}%` })
-      .orWhere('user.email ILIKE :keyword', { keyword: `%${keyword}%` })
-      .getMany();
-
-    return users;
   }
 
   async updateRegisteredUserInfo(id: string, updateData: Partial<User>): Promise<User> {
