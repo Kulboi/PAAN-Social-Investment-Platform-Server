@@ -13,7 +13,7 @@ import { TokenBlacklist } from 'src/auth/entities/token-blacklist.entity';
 
 import { CreateBackOfficeUserRequestDto } from './dto/create-back-office-user-request.dto';
 import { LoginBackOfficeUserRequestDto } from './dto/login-back-office-user-request.dto';
-import { RefreshBackOfficeUserTokenDto } from './dto/refresh-back-office-user-token.dto';
+import { RefreshBackOfficeUserTokenDto, RefreshBackOfficeUserTokenResponseDto } from './dto/refresh-back-office-user-token.dto';
 import { FetchSystemUsersRequestDto, FetchSystemUserResponseDto } from './dto/system-users.dto';
 import { ForgotBackOfficeUserPasswordDto, ForgotBackOfficeUserPasswordResponseDto } from './dto/forgot-back-office-user-password.dto';
 import { ResetBackOfficeUserPasswordRequestDto, ResetBackOfficeUserPasswordResponseDto } from './dto/reset-back-office-user-password.dto';
@@ -135,7 +135,7 @@ export class BackOfficeService {
     };
   }
 
-  async refreshToken(payload: RefreshBackOfficeUserTokenDto) {
+  async refreshToken(payload: RefreshBackOfficeUserTokenDto): Promise<{ data: RefreshBackOfficeUserTokenResponseDto }> {
     const backOfficeUser = await this.backOfficeUserRepo.findOneBy({ id: payload.user_id });
 
     if (!backOfficeUser || !backOfficeUser.hashedRt) {

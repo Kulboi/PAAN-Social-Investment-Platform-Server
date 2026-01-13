@@ -49,6 +49,7 @@ import { ResetBackOfficeUserPasswordRequestDto } from './dto/reset-back-office-u
 import { ChangeBackOfficeUserRequestDto } from './dto/change-back-office-user-password.dto';
 import { UpdateBackOfficeUserRequestDto } from './dto/update-back-office-user.dto';
 import { LogoutBackOfficeUserDto, LogoutBackOfficeUserResponseDto } from './dto/logout-back-office-user.dto';
+import { RefreshBackOfficeUserTokenRequestDto, RefreshBackOfficeUserTokenResponseDto } from './dto/refresh-back-office-user-token.dto';
 
 @ApiBearerAuth()
 @Controller('/api/v1/back-office')
@@ -108,19 +109,20 @@ export class BackOfficeController {
     return this.backOfficeService.logoutBackOfficeUser(req.user.id, payload.token);
   }
 
-  @Get('refresh-token')
+  @Post('refresh-token')
   @ApiOperation({ summary: 'Refresh back office user JWT token' })
+  @ApiBody({ type: RefreshBackOfficeUserTokenRequestDto })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'The JWT token has been successfully refreshed.',
-    type: CreateBackOfficeUserResponseDto,
+    type: RefreshBackOfficeUserTokenResponseDto,
   })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
-  refreshToken(@Req() req) {
+  refreshToken(@Body() payload: RefreshBackOfficeUserTokenRequestDto, @Req() req) {
     return this.backOfficeService.refreshToken({
-      user_id: req.user.id,
-      refresh_token: req.user.refresh_token,
+      user_id: req.user.user_id,
+      refresh_token: payload.refresh_token,
     });
   }
 
