@@ -20,6 +20,7 @@ import {
   ApiBody,
   ApiBearerAuth,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 
 import { BackOfficeService } from './back-office.service';
@@ -38,7 +39,7 @@ import { UpdateInvestmentCategoryDto } from 'src/investment-categories/dto/updat
 import { CreateCompanyDto } from 'src/companies/dto/create-company.dto';
 import { UpdateCompanyDto } from 'src/companies/dto/update-company.dto';
 import { CreateInvestmentDto } from 'src/investments/dto/create-investment.dto';
-import { InvestmentResponseDto } from 'src/investments/dto/investment-response.dto';
+import { InvestmentResponseDto, InvestmentDetailsDto } from 'src/investments/dto/investment-response.dto';
 import {
   FetchSystemUsersRequestDto,
   FetchSystemUserResponseDto,
@@ -50,6 +51,7 @@ import { ChangeBackOfficeUserRequestDto } from './dto/change-back-office-user-pa
 import { UpdateBackOfficeUserRequestDto } from './dto/update-back-office-user.dto';
 import { LogoutBackOfficeUserDto, LogoutBackOfficeUserResponseDto } from './dto/logout-back-office-user.dto';
 import { RefreshBackOfficeUserTokenRequestDto, RefreshBackOfficeUserTokenResponseDto } from './dto/refresh-back-office-user-token.dto';
+import { QueryInvestmentDto } from 'src/investments/dto/query-investment.dto';
 
 @ApiBearerAuth()
 @Controller('/api/v1/back-office')
@@ -284,11 +286,25 @@ export class BackOfficeController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Investment created successfully',
-    type: InvestmentResponseDto,
+    type: InvestmentDetailsDto,
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   createInvestment(@Body() payload: CreateInvestmentDto) {
     return this.investmentsService.create(payload);
+  }
+
+  @Get('investments')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all investments with filtering and pagination' })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Investments retrieved successfully',
+    type: InvestmentResponseDto,
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  async getInvestment(@Query() query: QueryInvestmentDto): Promise<InvestmentResponseDto> {
+    return this.investmentsService.findAll(query);
   }
 
   @Patch('investment/update/:id')
@@ -299,13 +315,13 @@ export class BackOfficeController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Investment updated successfully',
-    type: InvestmentResponseDto,
+    type: InvestmentDetailsDto,
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
   async update(
     @Param('id') id: string,
     @Body() updateInvestmentDto: UpdateInvestmentDto,
-  ): Promise<InvestmentResponseDto> {
+  ): Promise<InvestmentDetailsDto> {
     return this.investmentsService.update(id, updateInvestmentDto);
   }
 

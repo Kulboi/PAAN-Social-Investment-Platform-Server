@@ -4,7 +4,7 @@ import { Type } from 'class-transformer';
 
 import { InvestmentCategory } from '../entities/investment-categories.entity';
 
-import { InvestmentRiskLevel, InvestmentStatus } from './create-investment.dto';
+import { InvestmentRiskLevel, InvestmentStatus, InvestmentCategoryEnum } from './create-investment.dto';
 
 export class QueryInvestmentDto {
   @ApiPropertyOptional({ description: 'Search by title or description', example: 'real estate' })
@@ -14,7 +14,7 @@ export class QueryInvestmentDto {
 
   @ApiPropertyOptional({ description: 'Filter by category', example: 'Real Estate' })
   @IsOptional()
-  @IsString()
+  @IsEnum(InvestmentCategory)
   category?: InvestmentCategory;
 
   @ApiPropertyOptional({ description: 'Filter by status', enum: InvestmentStatus, example: InvestmentStatus.ACTIVE })

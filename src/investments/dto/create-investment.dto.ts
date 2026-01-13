@@ -16,6 +16,18 @@ export enum InvestmentStatus {
   COMPLETED = 'completed',
 }
 
+export enum InvestmentCategoryEnum {
+  REAL_ESTATE = 'Real Estate',
+  STOCKS = 'Stocks',
+  BONDS = 'Bonds',
+  MUTUAL_FUNDS = 'Mutual Funds',
+  CRYPTOCURRENCY = 'Cryptocurrency',
+  COMMODITIES = 'Commodities',
+  STARTUPS = 'Startups',
+  PEER_TO_PEER_LENDING = 'Peer-to-Peer Lending',
+  ART_AND_COLLECTIBLES = 'Art and Collectibles',
+}
+
 export class CreateInvestmentDto {
   @ApiProperty({ description: 'Investment title', example: 'Real Estate Development Project' })
   @IsString()

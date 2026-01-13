@@ -4,7 +4,8 @@ import { InvestmentCategory } from '../entities/investment-categories.entity';
 
 import { InvestmentRiskLevel, InvestmentStatus } from './create-investment.dto';
 
-export class InvestmentResponseDto {
+
+export class InvestmentDetailsDto {
   @ApiProperty({ description: 'Unique investment ID', example: 1 })
   id: string;
 
@@ -73,4 +74,21 @@ export class InvestmentResponseDto {
 
   @ApiProperty({ description: 'Last update timestamp', example: '2024-01-01T00:00:00.000Z' })
   updatedAt: Date;
+}
+
+export class InvestmentResponseDto {
+  @ApiProperty({ description: 'Array of investments', type: [InvestmentDetailsDto] })
+  investments: InvestmentDetailsDto[];
+
+  @ApiProperty({ description: 'Total number of investments', example: 100 })
+  total: number;
+
+  @ApiProperty({ description: 'Current page number', example: 1 })
+  page: number;
+
+  @ApiProperty({ description: 'Number of investments per page', example: 10 })
+  limit: number;
+
+  @ApiProperty({ description: 'Total number of pages', example: 10 })
+  totalPages: number;
 }
