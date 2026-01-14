@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, BadRequestException, NotImplementedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
@@ -331,5 +331,9 @@ export class BackOfficeService {
 
     user.is_active = true;
     await this.userRepository.save(user);
+  }
+
+  async getDashboardMetrics() {
+    return new NotImplementedException();
   }
 }

@@ -393,4 +393,15 @@ export class BackOfficeController {
   deactivateRegisteredUser(@Param('id') id: string) {
     return this.backOfficeService.deactivateRegisteredUser(id);
   }
+
+  @Get('dashboard-metrics')
+  @ApiOperation({ summary: 'Get back office dashboard metrics' })
+  @ApiResponse({
+    status: 200,
+    description: 'Dashboard metrics retrieved successfully.',
+  })
+  @UseGuards(JwtAuthGuard, AdminRoleGuard)
+  getDashboardMetrics() {
+    return this.backOfficeService.getDashboardMetrics();
+  }
 }
