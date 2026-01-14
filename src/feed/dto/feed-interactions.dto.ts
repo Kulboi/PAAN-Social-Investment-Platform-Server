@@ -242,3 +242,18 @@ export class PaginationMetaDto {
   @ApiProperty()
   hasPrevious: boolean;
 }
+
+export class DeleteCommentRequestDto {
+  @ApiProperty()
+  @IsUUID()
+  postId: string;
+
+  @ApiProperty()
+  @IsUUID()
+  commentId: string;
+}
+
+export class DeleteCommentResponseDto {
+  @ApiProperty({ description: 'Message confirming deletion of the comment' })
+  message: string;
+}

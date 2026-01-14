@@ -114,7 +114,7 @@ export class FeedController {
     @Body() createCommentDto: CreateCommentDto,
     @Request() req,
   ) {
-    return this.feedService.createComment(createCommentDto, postId, req.user.id);
+    return await this.feedService.createComment(createCommentDto, postId, req.user.id);
   }
 
   @Get('posts/:postId/comments')
@@ -129,22 +129,24 @@ export class FeedController {
     @Param('postId') postId: string,
     @Query() getCommentsDto: GetCommentsRequestDto,
   ) {
-    return this.feedService.getComments(postId, getCommentsDto);
+    return await this.feedService.getComments(postId, getCommentsDto);
   }
 
   @Patch('comments/:id')
   @ApiOperation({ summary: 'Update a comment' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Comment updated successfully' })
   async updateComment(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.feedService.updateComment(id, updateCommentDto);
+    return await this.feedService.updateComment(id, updateCommentDto);
   }
 
-  @Delete('comments/:id')
+  @Delete('comments/:postId/:commentId')
   @ApiOperation({ summary: 'Delete a comment' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Comment deleted successfully' })
-  async deleteComment(@Param('id') id: string) {
-    await this.feedService.deleteComment(id);
-    return { message: 'Comment deleted successfully' };
+  async deleteComment(@Param('postId') postId: string, @Param('commentId') commentId: string) {
+    return await this.feedService.deleteComment({
+      postId,
+      commentId,
+    });
   }
 
   // LIKE ENDPOINTS

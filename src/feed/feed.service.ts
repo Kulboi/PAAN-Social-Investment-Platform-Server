@@ -13,7 +13,16 @@ import { PostReport } from './entities/post-report.entity';
 
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { CreateCommentDto, UpdateCommentDto, CreateLikeDto, CreateShareDto, CreateReportDto, GetCommentsRequestDto } from './dto/feed-interactions.dto';
+import { 
+  CreateCommentDto, 
+  UpdateCommentDto, 
+  CreateLikeDto, 
+  CreateShareDto, 
+  CreateReportDto, 
+  GetCommentsRequestDto, 
+  DeleteCommentRequestDto,
+  DeleteCommentResponseDto 
+} from './dto/feed-interactions.dto';
 import { PostResponseDto } from './dto/post-response.dto';
 import { FetchPostRequestDto } from './dto/fetch-post.dto';
 
@@ -171,7 +180,11 @@ export class FeedService {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
     const comment = this.commentRepository.create({ ...createCommentDto, postId, authorId: userId });
-    return await this.commentRepository.save(comment);
+    await this.commentRepository.save(comment)
+
+    post.commentsCount += 1;
+    await this.postRepository.save(post);
+    return comment;
   }
 
   async getComments(postId: string, query: GetCommentsRequestDto): Promise<PostComment[]> {
@@ -193,12 +206,27 @@ export class FeedService {
     return await this.commentRepository.save(comment);
   }
 
-  async deleteComment(commentId: string): Promise<void> {
+  async deleteComment({
+    postId,
+    commentId,
+  }: DeleteCommentRequestDto): Promise<DeleteCommentResponseDto> {
+    const post = await this.postRepository.findOneBy({ id: postId });
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${postId} not found`);
+    }
+
     const comment = await this.commentRepository.findOneBy({ id: commentId });
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${commentId} not found`);
     }
     await this.commentRepository.remove(comment);
+
+    post.commentsCount = Math.max(0, post.commentsCount - 1);
+    await this.postRepository.save(post);
+
+    return {
+      message: 'Comment deleted successfully',
+    };
   }
 
   async createLike(createLikeDto: CreateLikeDto, postId: string, userId: string): Promise<PostLike> {

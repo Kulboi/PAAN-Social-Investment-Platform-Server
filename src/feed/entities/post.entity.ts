@@ -9,10 +9,13 @@ import {
   Index,
   JoinColumn,
 } from 'typeorm';
+
 import { User } from '../../user/entities/user.entity';
 import { PostLike } from './post-like.entity';
 import { PostComment } from './post-comment.entity';
 import { PostMedia } from './post-media.entity';
+import { PostShare } from './post-share.entity';
+import { PostReport } from './post-report.entity';
 
 export enum PostType {
   TEXT = 'TEXT',
@@ -144,6 +147,12 @@ export class Post {
 
   @OneToMany(() => PostMedia, (media) => media.post, { cascade: true })
   media: PostMedia[];
+
+  @OneToMany(() => PostShare, (share) => share.post, { cascade: true })
+  shares: PostShare[];
+
+  @OneToMany(() => PostReport, (report) => report.post, { cascade: true })
+  reports: PostReport[];
 
   // Computed fields (can be added as virtual properties)
   get isOwner(): (userId: string) => boolean {
