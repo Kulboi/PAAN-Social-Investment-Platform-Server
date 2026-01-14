@@ -9,8 +9,9 @@ import {
   Query,
   UseGuards,
   Request,
+  HttpStatus,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 
 import { CloudinaryService, SignedUploadParams } from '../common/services/cloudinary.service';
 
@@ -27,7 +28,8 @@ import {
   CreateShareDto,
   CreateReportDto,
   GetFeedDto,
-  GetCommentsDto,
+  GetCommentsRequestDto,
+  GetCommentsResponseDto
 } from './dto/feed-interactions.dto';
 import { FetchPostRequestDto } from './dto/fetch-post.dto';
 
@@ -44,14 +46,14 @@ export class FeedController {
   // POST ENDPOINTS
   @Get('posts/media-upload-params')
   @ApiOperation({ summary: 'Get media upload parameters for posts' })
-  @ApiResponse({ status: 200, description: 'Upload parameters retrieved successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Upload parameters retrieved successfully' })
   async getPostsUploadParams(): Promise<SignedUploadParams> {
     return this.cloudinaryService.generateSignedUploadParams('paan-posts');
   }
 
   @Post()
   @ApiOperation({ summary: 'Create a new post' })
-  @ApiResponse({ status: 201, description: 'Post created successfully' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Post created successfully' })
   async createPost(@Body() createPostDto: CreatePostDto, @Request() req) {
     return this.feedService.createPost(createPostDto, req.user.id);
   }
@@ -59,7 +61,7 @@ export class FeedController {
   @Get()
   @ApiOperation({ summary: 'Get feed posts with pagination and filters' })
   @ApiResponse({ 
-    status: 200, 
+    status: HttpStatus.OK,
     description: 'Feed posts retrieved successfully',
     type: [PostResponseDto]
   })
@@ -73,7 +75,7 @@ export class FeedController {
   @Get('posts/:id')
   @ApiOperation({ summary: 'Get a specific post by ID' })
   @ApiResponse({ 
-    status: 200, 
+    status: HttpStatus.OK, 
     description: 'Post retrieved successfully',
     type: PostResponseDto
   })
@@ -83,14 +85,14 @@ export class FeedController {
 
   @Patch('posts/:id')
   @ApiOperation({ summary: 'Update a post' })
-  @ApiResponse({ status: 200, description: 'Post updated successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Post updated successfully' })
   async updatePost(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
     return this.feedService.updatePost(id, updatePostDto);
   }
 
   @Delete('posts/:id')
   @ApiOperation({ summary: 'Delete a post' })
-  @ApiResponse({ status: 200, description: 'Post deleted successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Post deleted successfully' })
   async deletePost(@Param('id') id: string) {
     await this.feedService.deletePost(id);
     return { message: 'Post deleted successfully' };
@@ -99,14 +101,14 @@ export class FeedController {
   // COMMENT ENDPOINTS
   @Get('comments/media-upload-params')
   @ApiOperation({ summary: 'Get media upload parameters for comments' })
-  @ApiResponse({ status: 200, description: 'Upload parameters retrieved successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Upload parameters retrieved successfully' })
   async getCommentsUploadParams(): Promise<SignedUploadParams> {
     return this.cloudinaryService.generateSignedUploadParams('paan-comments');
   }
 
   @Post('posts/:postId/comments')
   @ApiOperation({ summary: 'Create a comment on a post' })
-  @ApiResponse({ status: 201, description: 'Comment created successfully' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Comment created successfully' })
   async createComment(
     @Param('postId') postId: string,
     @Body() createCommentDto: CreateCommentDto,
@@ -117,25 +119,29 @@ export class FeedController {
 
   @Get('posts/:postId/comments')
   @ApiOperation({ summary: 'Get comments for a post' })
-  @ApiResponse({ status: 200, description: 'Comments retrieved successfully' })
+  @ApiQuery({ type: GetCommentsRequestDto })
+  @ApiResponse({ 
+    status: HttpStatus.OK, 
+    description: 'Comments retrieved successfully',
+    type: [GetCommentsResponseDto]
+  })
   async getComments(
     @Param('postId') postId: string,
-    @Query() getCommentsDto: GetCommentsDto,
+    @Query() getCommentsDto: GetCommentsRequestDto,
   ) {
-    // Implementation for getting comments
-    return { message: `Get comments for post ${postId} - to be implemented` };
+    return this.feedService.getComments(postId, getCommentsDto);
   }
 
   @Patch('comments/:id')
   @ApiOperation({ summary: 'Update a comment' })
-  @ApiResponse({ status: 200, description: 'Comment updated successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Comment updated successfully' })
   async updateComment(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
     return this.feedService.updateComment(id, updateCommentDto);
   }
 
   @Delete('comments/:id')
   @ApiOperation({ summary: 'Delete a comment' })
-  @ApiResponse({ status: 200, description: 'Comment deleted successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Comment deleted successfully' })
   async deleteComment(@Param('id') id: string) {
     await this.feedService.deleteComment(id);
     return { message: 'Comment deleted successfully' };
@@ -144,7 +150,7 @@ export class FeedController {
   // LIKE ENDPOINTS
   @Post('posts/:postId/like')
   @ApiOperation({ summary: 'Like a post' })
-  @ApiResponse({ status: 201, description: 'Post liked successfully' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Post liked successfully' })
   async likePost(
     @Param('postId') postId: string,
     @Body() createLikeDto: CreateLikeDto,
@@ -155,7 +161,7 @@ export class FeedController {
 
   @Delete('posts/:postId/unlike')
   @ApiOperation({ summary: 'Unlike a post' })
-  @ApiResponse({ status: 200, description: 'Post unliked successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Post unliked successfully' })
   async unlikePost(@Param('postId') postId: string, @Request() req) {
     await this.feedService.removeLike(postId, req.user.id);
     return { message: 'Post unliked successfully' };
@@ -164,7 +170,7 @@ export class FeedController {
   // IS POST LIKED ENDPOINT
   @Get('posts/:postId/is-liked')
   @ApiOperation({ summary: 'Check if the authenticated user has liked a post' })
-  @ApiResponse({ status: 200, description: 'Like status retrieved successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Like status retrieved successfully' })
   async isPostLiked(@Param('postId') postId: string, @Request() req) {
     const isLiked = await this.feedService.isPostLikedByUser(postId, req.user.id);
     return { isLiked };
@@ -173,7 +179,7 @@ export class FeedController {
   // SHARE ENDPOINTS
   @Post('posts/:postId/share')
   @ApiOperation({ summary: 'Share a post' })
-  @ApiResponse({ status: 201, description: 'Post shared successfully' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Post shared successfully' })
   async sharePost(
     @Param('postId') postId: string,
     @Body() createShareDto: CreateShareDto,
@@ -185,7 +191,7 @@ export class FeedController {
   // REPORT ENDPOINTS
   @Post('posts/:postId/report')
   @ApiOperation({ summary: 'Report a post' })
-  @ApiResponse({ status: 201, description: 'Post reported successfully' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Post reported successfully' })
   async reportPost(
     @Param('postId') postId: string,
     @Body() createReportDto: CreateReportDto,
@@ -197,7 +203,7 @@ export class FeedController {
   // ANALYTICS ENDPOINTS
   @Get('posts/:postId/stats')
   @ApiOperation({ summary: 'Get post statistics' })
-  @ApiResponse({ status: 200, description: 'Post statistics retrieved successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Post statistics retrieved successfully' })
   async getPostStats(@Param('postId') postId: string) {
     // Implementation for getting post statistics
     return { message: `Get stats for post ${postId} - to be implemented` };
@@ -206,7 +212,7 @@ export class FeedController {
   // USER FEED ENDPOINTS
   @Get('user/:userId/posts')
   @ApiOperation({ summary: 'Get posts by a specific user' })
-  @ApiResponse({ status: 200, description: 'User posts retrieved successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'User posts retrieved successfully' })
   async getUserPosts(@Param('userId') userId: string, @Query() getFeedDto: GetFeedDto) {
     // Implementation for getting user-specific posts
     return { message: `Get posts for user ${userId} - to be implemented` };
@@ -214,7 +220,7 @@ export class FeedController {
 
   @Get('trending')
   @ApiOperation({ summary: 'Get trending posts' })
-  @ApiResponse({ status: 200, description: 'Trending posts retrieved successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Trending posts retrieved successfully' })
   async getTrendingPosts(@Query() getFeedDto: GetFeedDto) {
     // Implementation for getting trending posts
     return { message: 'Get trending posts - to be implemented' };
@@ -222,7 +228,7 @@ export class FeedController {
 
   @Get('hashtag/:hashtag')
   @ApiOperation({ summary: 'Get posts by hashtag' })
-  @ApiResponse({ status: 200, description: 'Hashtag posts retrieved successfully' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Hashtag posts retrieved successfully' })
   async getPostsByHashtag(@Param('hashtag') hashtag: string, @Query() getFeedDto: GetFeedDto) {
     // Implementation for getting posts by hashtag
     return { message: `Get posts for hashtag ${hashtag} - to be implemented` };

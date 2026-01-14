@@ -12,9 +12,11 @@ import {
   Max,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 import { LikeType } from '../entities/post-like.entity';
 import { ShareType } from '../entities/post-share.entity';
 import { ReportReason } from '../entities/post-report.entity';
+import { PostComment } from '../entities/post-comment.entity';
 
 // Comment DTOs
 export class CreateCommentDto {
@@ -156,7 +158,7 @@ export class GetFeedDto {
   marketSector?: string;
 }
 
-export class GetCommentsDto {
+export class GetCommentsRequestDto {
   @ApiPropertyOptional({ default: 1 })
   @IsOptional()
   @IsNumber()
@@ -184,6 +186,23 @@ export class GetCommentsDto {
   @IsOptional()
   @IsUUID()
   parentCommentId?: string;
+}
+
+export class GetCommentsResponseDto {
+  @ApiProperty()
+  comments: PostComment[];
+
+  @ApiProperty()
+  totalComments: number;
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  limit: number;
+
+  @ApiProperty()
+  totalPages: number;
 }
 
 // Response DTOs

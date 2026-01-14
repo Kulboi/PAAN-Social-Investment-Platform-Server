@@ -13,7 +13,7 @@ import { PostReport } from './entities/post-report.entity';
 
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { CreateCommentDto, UpdateCommentDto, CreateLikeDto, CreateShareDto, CreateReportDto } from './dto/feed-interactions.dto';
+import { CreateCommentDto, UpdateCommentDto, CreateLikeDto, CreateShareDto, CreateReportDto, GetCommentsRequestDto } from './dto/feed-interactions.dto';
 import { PostResponseDto } from './dto/post-response.dto';
 import { FetchPostRequestDto } from './dto/fetch-post.dto';
 
@@ -172,6 +172,16 @@ export class FeedService {
     }
     const comment = this.commentRepository.create({ ...createCommentDto, postId, authorId: userId });
     return await this.commentRepository.save(comment);
+  }
+
+  async getComments(postId: string, query: GetCommentsRequestDto): Promise<PostComment[]> {
+    return await this.commentRepository.find({
+      where: { postId: postId },
+      relations: ['author'],
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async updateComment(commentId: string, updateCommentDto: UpdateCommentDto): Promise<PostComment> {
