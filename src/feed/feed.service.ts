@@ -82,7 +82,7 @@ export class FeedService {
   async getPost(id: string): Promise<PostResponseDto> {
     const post = await this.postRepository.findOne({
       where: { id },
-      relations: ['author', 'media'],
+      relations: ['author', 'media', 'likes', 'comments', 'shares', 'reports'],
     });
     
     if (!post) {
