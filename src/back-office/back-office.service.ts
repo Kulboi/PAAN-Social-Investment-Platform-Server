@@ -10,6 +10,8 @@ import { MailerService } from 'src/common/utils/mailer.service';
 import { BackOfficeUser } from './entities/back-office-user.entity';
 import { User } from 'src/user/entities/user.entity';
 import { TokenBlacklist } from 'src/auth/entities/token-blacklist.entity';
+import { Investment } from 'src/investments/entities/investment.entity';
+import { InvestmentTransaction } from 'src/investments/entities/investment-transaction.entity';
 
 import { CreateBackOfficeUserRequestDto } from './dto/create-back-office-user-request.dto';
 import { LoginBackOfficeUserRequestDto } from './dto/login-back-office-user-request.dto';
@@ -20,6 +22,7 @@ import { ResetBackOfficeUserPasswordRequestDto, ResetBackOfficeUserPasswordRespo
 import { ChangeBackOfficeUserRequestDto, ChangeBackOfficeUserResponseDto } from './dto/change-back-office-user-password.dto';
 import { UpdateBackOfficeUserRequestDto, UpdateBackOfficeUserResponseDto } from './dto/update-back-office-user.dto';
 import { LogoutBackOfficeUserResponseDto } from './dto/logout-back-office-user.dto';
+import { DashboardMetricsResponseDto } from './dto/dashboard-metrics.dto';
 
 @Injectable()
 export class BackOfficeService {
@@ -34,6 +37,10 @@ export class BackOfficeService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(TokenBlacklist)
     private readonly tokenBlacklistRepo: Repository<TokenBlacklist>,
+    @InjectRepository(Investment)
+    private readonly investmentRepository: Repository<Investment>,
+    @InjectRepository(InvestmentTransaction)
+    private readonly investmentTransactionRepository: Repository<InvestmentTransaction>,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
   ) {}
@@ -333,7 +340,46 @@ export class BackOfficeService {
     await this.userRepository.save(user);
   }
 
-  async getDashboardMetrics() {
-    return new NotImplementedException();
+  async getDashboardMetrics(): Promise<DashboardMetricsResponseDto> {
+    // Get total investments count
+    const totalInvestments = await this.investmentRepository.count();
+
+    // Get investments by status
+    const activeInvestments = await this.investmentRepository.count({
+      where: { status: 'active' as any },
+    });
+
+    const pendingApprovals = await this.investmentRepository.count({
+      where: { status: 'pending' as any },
+    });
+
+    const completedInvestments = await this.investmentRepository.count({
+      where: { status: 'completed' as any },
+    });
+
+    // Calculate total investment value (sum of targeted amounts)
+    const investmentValueResult = await this.investmentRepository
+      .createQueryBuilder('investment')
+      .select('SUM(investment.targeted_amount)', 'total')
+      .getRawOne();
+
+    const totalInvestmentValue = parseFloat(investmentValueResult?.total || '0');
+
+    // Calculate total amount raised across all investments
+    const amountRaisedResult = await this.investmentRepository
+      .createQueryBuilder('investment')
+      .select('SUM(investment.totalRaised)', 'total')
+      .getRawOne();
+
+    const totalAmountRaised = parseFloat(amountRaisedResult?.total || '0');
+
+    return {
+      totalInvestments,
+      totalInvestmentValue,
+      pendingApprovals,
+      activeInvestments,
+      completedInvestments,
+      totalAmountRaised,
+    };
   }
 }

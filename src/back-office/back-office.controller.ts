@@ -52,6 +52,7 @@ import { UpdateBackOfficeUserRequestDto } from './dto/update-back-office-user.dt
 import { LogoutBackOfficeUserDto, LogoutBackOfficeUserResponseDto } from './dto/logout-back-office-user.dto';
 import { RefreshBackOfficeUserTokenRequestDto, RefreshBackOfficeUserTokenResponseDto } from './dto/refresh-back-office-user-token.dto';
 import { QueryInvestmentDto } from 'src/investments/dto/query-investment.dto';
+import { DashboardMetricsResponseDto } from './dto/dashboard-metrics.dto';
 
 @ApiBearerAuth()
 @Controller('/api/v1/back-office')
@@ -397,11 +398,12 @@ export class BackOfficeController {
   @Get('dashboard-metrics')
   @ApiOperation({ summary: 'Get back office dashboard metrics' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Dashboard metrics retrieved successfully.',
+    type: DashboardMetricsResponseDto,
   })
   @UseGuards(JwtAuthGuard, AdminRoleGuard)
-  getDashboardMetrics() {
+  getDashboardMetrics(): Promise<DashboardMetricsResponseDto> {
     return this.backOfficeService.getDashboardMetrics();
   }
 }
