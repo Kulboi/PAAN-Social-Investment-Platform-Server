@@ -1,7 +1,7 @@
 import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthGuard } from '@nestjs/passport';
 
 import { TokenBlacklist } from 'src/auth/entities/token-blacklist.entity';
 

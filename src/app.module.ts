@@ -22,6 +22,7 @@ import { CompaniesModule } from './companies/companies.module';
 import { WaitlistModule } from './waitlist/waitlist.module';
 
 import { AppController } from './app.controller';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
@@ -52,7 +53,8 @@ import { AppController } from './app.controller';
     BackOfficeModule,
     InvestmentCategoriesModule,
     CompaniesModule,
-    WaitlistModule
+    WaitlistModule,
+    CommonModule,
   ],
   providers: [JwtStrategy, RtStrategy],
   controllers: [AppController],

@@ -114,6 +114,6 @@ export class AuthController {
     status: 200, description: 'Logout successful', 
   })
   logout(@Req() req) {
-    return this.authService.logout(req.user.id);
+    return this.authService.logout(req.user.id, req.user.token);
   }
 }

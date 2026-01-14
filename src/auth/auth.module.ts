@@ -11,9 +11,10 @@ import { User } from 'src/user/entities/user.entity';
 import { Verification } from 'src/auth/entities/verification.entity';
 import { Wallet } from 'src/wallet/entities/wallet.entity';
 import { Notification } from 'src/notifications/entities/notifications.entity';
+import { TokenBlacklist } from 'src/auth/entities/token-blacklist.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Verification, Wallet, Notification])],
+  imports: [TypeOrmModule.forFeature([User, Verification, Wallet, Notification, TokenBlacklist])],
   controllers: [AuthController],
   providers: [AuthService, MailerService, JwtService],
 })

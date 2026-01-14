@@ -18,6 +18,7 @@ import { MailerService } from '../common/utils/mailer.service';
 import { User } from '../user/entities/user.entity';
 import { Verification } from './entities/verification.entity';
 import { Notification } from 'src/notifications/entities/notifications.entity';
+import { TokenBlacklist } from 'src/auth/entities/token-blacklist.entity';
 
 import { AuthTypes } from '../user/user.enums';
 import { NotificationTypes } from 'src/notifications/notifications.enum';
@@ -40,12 +41,17 @@ export class AuthService {
   private refreshTokenExpirationTime = '1d';
 
   constructor(
-    @InjectRepository(User) private readonly userRepo: Repository<User>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
     @InjectRepository(Verification)
     private readonly verificationRepo: Repository<Verification>,
-    @InjectRepository(Wallet) private readonly walletRepo: Repository<Wallet>,
+    @InjectRepository(Wallet)
+    private readonly walletRepo: Repository<Wallet>,
     @InjectRepository(Notification)
     private readonly notificationRepo: Repository<Notification>,
+    @InjectRepository(TokenBlacklist)
+    private readonly tokenBlacklistRepo: Repository<TokenBlacklist>,
+
     private readonly mailerService: MailerService,
     private jwtService: JwtService,
   ) {}
@@ -78,7 +84,7 @@ export class AuthService {
         expiresAt,
       });
       await this.verificationRepo.save(verification);
-      
+
       const notification = this.notificationRepo.create({
         user,
         title: 'Welcome to Paan!',
@@ -275,9 +281,31 @@ export class AuthService {
     return { description: 'Password reset successful' };
   }
 
-  async logout(userId: string) {
+  async checkIfTokenBlacklisted(token: string): Promise<boolean> {
+    const isBlacklisted = await this.tokenBlacklistRepo.findOne({
+      where: { token },
+    });
+    return !!isBlacklisted;
+  }
+
+  async logout(userId: string, accessToken: string) {
     try {
+      const user = await this.userRepo.update(userId, { hashedRt: null });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
       await this.userRepo.update(userId, { hashedRt: null });
+
+      const decoded = this.jwtService.decode(accessToken) as any;
+      if (decoded && decoded.exp) {
+        await this.tokenBlacklistRepo.save({
+          token: accessToken,
+          userId: userId,
+          expires_at: new Date(decoded.exp * 1000),
+        });
+      }
       return { description: 'Logout successful' };
     } catch (error) {
       throw new NotFoundException('User not found');
