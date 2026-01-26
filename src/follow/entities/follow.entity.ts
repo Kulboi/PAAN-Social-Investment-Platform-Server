@@ -18,10 +18,10 @@ export class Follow {
   id: string;
 
   @Column()
-  followerId: string;
+  follower_id: string;
 
   @Column()
-  followingId: string;
+  following_id: string;
 
   @Column({
     default: FollowStatus.ACCEPTED,
@@ -31,8 +31,8 @@ export class Follow {
   status: FollowStatus;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updated_at: Date;
 }

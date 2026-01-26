@@ -4,7 +4,8 @@ import { Repository } from 'typeorm';
 
 import { Follow } from './entities/follow.entity';
 
-import { FollowDto, GetFollowDto } from './dto/follow.dto';
+import { FollowRequestDto, FollowResponseDto } from './dto/follow.dto';
+import { GetFollowersRequestDto } from './dto/getFollowers.dto';
 
 @Injectable()
 export class FollowService {
@@ -13,33 +14,35 @@ export class FollowService {
     private readonly followRepo: Repository<Follow>,
   ) {}
 
-  async follow(dto: FollowDto) {
-    const follow = new Follow();
-    follow.followerId = dto.follower_id;
-    follow.followingId = dto.following_id;
+  async follow(dto: FollowRequestDto): Promise<FollowResponseDto> {
+    const saved = await this.followRepo.save(dto);
 
-    const saved = await this.followRepo.save(follow);
-
-    return saved;
+    return {
+      follower_id: saved.follower_id,
+      following_id: saved.following_id,
+      status: saved.status,
+      created_at: saved.created_at,
+      updated_at: saved.updated_at,
+    };
   }
 
-  async getFollowers(dto: GetFollowDto) {
-    const followers = await this.followRepo.find({
-      where: {
-        followingId: dto.user_id,
-      },
-    })
+  async getFollowers(dto: GetFollowersRequestDto) {
+    // const followers = await this.followRepo.find({
+    //   where: {
+    //     following_id: dto.user_id,
+    //   },
+    // })
 
-    return followers;
+    // return followers;
   }
 
   async getFollowing(dto: GetFollowDto) {
-    const following = await this.followRepo.find({
-      where: {
-        followerId: dto.user_id,
-      },
-    })
+    // const following = await this.followRepo.find({
+    //   where: {
+    //     follower_id: dto.user_id,
+    //   },
+    // })
 
-    return following;
+    // return following;
   }
 }
