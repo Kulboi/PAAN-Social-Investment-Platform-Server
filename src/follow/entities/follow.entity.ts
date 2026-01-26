@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum FollowStatus {
   PENDING = 'PENDING',
@@ -9,21 +15,24 @@ export enum FollowStatus {
 @Entity()
 export class Follow {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column()
-  followerId: number;
+  followerId: string;
 
   @Column()
-  followingId: number;
+  followingId: string;
 
-  @Column({ 
+  @Column({
     default: FollowStatus.ACCEPTED,
     type: 'enum',
-    enum: FollowStatus
+    enum: FollowStatus,
   })
   status: FollowStatus;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn()
   createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
