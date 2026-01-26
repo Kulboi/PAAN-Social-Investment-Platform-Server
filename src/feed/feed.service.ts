@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -13,45 +17,53 @@ import { PostReport } from './entities/post-report.entity';
 
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { 
-  CreateCommentDto, 
-  UpdateCommentDto, 
-  CreateLikeDto, 
-  CreateShareDto, 
-  CreateReportDto, 
-  GetCommentsRequestDto, 
+import {
+  CreateCommentDto,
+  UpdateCommentDto,
+  CreateLikeDto,
+  CreateShareDto,
+  CreateReportDto,
+  GetCommentsRequestDto,
   DeleteCommentRequestDto,
-  DeleteCommentResponseDto 
+  DeleteCommentResponseDto,
 } from './dto/feed-interactions.dto';
-import { PostResponseDto } from './dto/post-response.dto';
+import {
+  PostResponseDto,
+  PostResponseDataDto,
+  PostResponseMetaDto,
+} from './dto/post-response.dto';
 import { FetchPostRequestDto } from './dto/fetch-post.dto';
-
 
 @Injectable()
 export class FeedService {
   constructor(
     @InjectRepository(Post) private readonly postRepository: Repository<Post>,
-    @InjectRepository(PostLike) private readonly likeRepository: Repository<PostLike>,
-    @InjectRepository(PostComment) private readonly commentRepository: Repository<PostComment>,
-    @InjectRepository(PostMedia) private readonly mediaRepository: Repository<PostMedia>,
-    @InjectRepository(PostShare) private readonly shareRepository: Repository<PostShare>,
-    @InjectRepository(PostReport) private readonly reportRepository: Repository<PostReport>,
+    @InjectRepository(PostLike)
+    private readonly likeRepository: Repository<PostLike>,
+    @InjectRepository(PostComment)
+    private readonly commentRepository: Repository<PostComment>,
+    @InjectRepository(PostMedia)
+    private readonly mediaRepository: Repository<PostMedia>,
+    @InjectRepository(PostShare)
+    private readonly shareRepository: Repository<PostShare>,
+    @InjectRepository(PostReport)
+    private readonly reportRepository: Repository<PostReport>,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async createPost(
-    createPostDto: CreatePostDto, 
-    userId: string, 
+    createPostDto: CreatePostDto,
+    userId: string,
   ): Promise<Post> {
     const { media, ...postData } = createPostDto;
-    
+
     // Create the post first
     const post = this.postRepository.create({ ...postData, authorId: userId });
     const savedPost = await this.postRepository.save(post);
-    
+
     // Create media from DTO if provided (for Cloudinary URLs)
     if (media && media.length > 0) {
-      const mediaEntities = media.map(mediaItem => 
+      const mediaEntities = media.map((mediaItem) =>
         this.mediaRepository.create({
           mediaType: mediaItem.mediaType,
           url: mediaItem.url,
@@ -66,53 +78,83 @@ export class FeedService {
           caption: mediaItem.caption,
           sortOrder: mediaItem.sortOrder,
           postId: savedPost.id,
-        })
+        }),
       );
       await this.mediaRepository.save(mediaEntities);
     }
-    
+
     return savedPost;
   }
 
-  async getFeed({ page = '1', limit = '20' }: FetchPostRequestDto): Promise<PostResponseDto[]> {
-    const posts = await this.postRepository.find({
-      where: {
-        visibility: PostVisibility.PUBLIC,
-      },
-      relations: ['author', 'media'],
-      skip: (parseInt(page) - 1) * parseInt(limit),
-      take: parseInt(limit),
-      order: { createdAt: 'DESC' },
-    });
+  async getFeed({
+    user_id,
+    page = 1,
+    limit = 20,
+  }: FetchPostRequestDto): Promise<PostResponseDto> {
+    const skip = (page - 1) * limit;
 
-    return posts.map(post => this.transformPost(post));
+    // Fetch posts from users the current user follows + their own posts
+    const [posts, total] = await this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.author', 'author')
+      .leftJoinAndSelect('post.media', 'media')
+      .leftJoin('author.followers', 'follower')
+      .where('follower.followerId = :user_id OR post.authorId = :user_id', {
+        user_id,
+      })
+      .andWhere('post.isPublished = :isPublished', { isPublished: true })
+      .andWhere('post.isHidden = :isHidden', { isHidden: false })
+      .andWhere(
+        '(post.visibility = :public OR (post.visibility = :followersOnly AND follower.followerId = :user_id) OR post.authorId = :user_id)',
+        {
+          public: 'PUBLIC',
+          followersOnly: 'FOLLOWERS_ONLY',
+          user_id,
+        },
+      )
+      .orderBy('post.createdAt', 'DESC')
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      data: posts.map((post) => this.transformPost(post)),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
-  async getPost(id: string): Promise<PostResponseDto> {
+  async getPost(id: string): Promise<PostResponseDataDto> {
     const post = await this.postRepository.findOne({
       where: { id },
       relations: ['author', 'media', 'likes', 'comments', 'shares', 'reports'],
     });
-    
+
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
-    
+
     return this.transformPost(post);
   }
 
-  private transformPost(post: Post): PostResponseDto {
-    const authorInfo = post.author ? {
-      firstName: post.author.first_name,
-      lastName: post.author.last_name,
-      profileImage: post.author.profile_image,
-    } : {
-      firstName: 'Unknown',
-      lastName: 'User',
-      profileImage: null,
-    };
+  private transformPost(post: Post): PostResponseDataDto {
+    const authorInfo = post.author
+      ? {
+          firstName: post.author.first_name,
+          lastName: post.author.last_name,
+          profileImage: post.author.profile_image,
+        }
+      : {
+          firstName: 'Unknown',
+          lastName: 'User',
+          profileImage: null,
+        };
 
-    const media = post.media?.map(mediaItem => ({
+    const media = post.media?.map((mediaItem) => ({
       id: mediaItem.id,
       mediaType: mediaItem.mediaType,
       url: mediaItem.url,
@@ -127,7 +169,7 @@ export class FeedService {
       caption: mediaItem.caption,
       sortOrder: mediaItem.sortOrder,
     }));
-    
+
     return {
       id: post.id,
       content: post.content,
@@ -157,7 +199,10 @@ export class FeedService {
     };
   }
 
-  async updatePost(postId: string, updatePostDto: UpdatePostDto): Promise<Post> {
+  async updatePost(
+    postId: string,
+    updatePostDto: UpdatePostDto,
+  ): Promise<Post> {
     const post = await this.postRepository.findOneBy({ id: postId });
     if (!post) {
       throw new NotFoundException(`Post with ID ${postId} not found`);
@@ -174,20 +219,31 @@ export class FeedService {
     await this.postRepository.remove(post);
   }
 
-  async createComment(createCommentDto: CreateCommentDto, postId: string, userId: string): Promise<PostComment> {
+  async createComment(
+    createCommentDto: CreateCommentDto,
+    postId: string,
+    userId: string,
+  ): Promise<PostComment> {
     const post = await this.postRepository.findOneBy({ id: postId });
     if (!post) {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
-    const comment = this.commentRepository.create({ ...createCommentDto, postId, authorId: userId });
-    await this.commentRepository.save(comment)
+    const comment = this.commentRepository.create({
+      ...createCommentDto,
+      postId,
+      authorId: userId,
+    });
+    await this.commentRepository.save(comment);
 
     post.commentsCount += 1;
     await this.postRepository.save(post);
     return comment;
   }
 
-  async getComments(postId: string, query: GetCommentsRequestDto): Promise<PostComment[]> {
+  async getComments(
+    postId: string,
+    query: GetCommentsRequestDto,
+  ): Promise<PostComment[]> {
     return await this.commentRepository.find({
       where: { postId: postId },
       relations: ['author'],
@@ -197,7 +253,10 @@ export class FeedService {
     });
   }
 
-  async updateComment(commentId: string, updateCommentDto: UpdateCommentDto): Promise<PostComment> {
+  async updateComment(
+    commentId: string,
+    updateCommentDto: UpdateCommentDto,
+  ): Promise<PostComment> {
     const comment = await this.commentRepository.findOneBy({ id: commentId });
     if (!comment) {
       throw new NotFoundException(`Comment with ID ${commentId} not found`);
@@ -229,16 +288,27 @@ export class FeedService {
     };
   }
 
-  async createLike(createLikeDto: CreateLikeDto, postId: string, userId: string): Promise<PostLike> {
+  async createLike(
+    createLikeDto: CreateLikeDto,
+    postId: string,
+    userId: string,
+  ): Promise<PostLike> {
     const post = await this.postRepository.findOneBy({ id: postId });
     if (!post) {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
-    const existingLike = await this.likeRepository.findOneBy({ postId, userId });
+    const existingLike = await this.likeRepository.findOneBy({
+      postId,
+      userId,
+    });
     if (existingLike) {
       throw new BadRequestException('User has already liked this post');
     }
-    const like = this.likeRepository.create({ ...createLikeDto, postId, userId });
+    const like = this.likeRepository.create({
+      ...createLikeDto,
+      postId,
+      userId,
+    });
     await this.likeRepository.save(like);
 
     post.likesCount += 1;
@@ -250,7 +320,9 @@ export class FeedService {
   async removeLike(postId: string, userId: string): Promise<PostLike> {
     const like = await this.likeRepository.findOneBy({ postId, userId });
     if (!like) {
-      throw new NotFoundException(`Like not found for post ID ${postId} and user ID ${userId}`);
+      throw new NotFoundException(
+        `Like not found for post ID ${postId} and user ID ${userId}`,
+      );
     }
     const unlike = await this.likeRepository.remove(like);
 
@@ -259,7 +331,7 @@ export class FeedService {
       post.likesCount = Math.max(0, post.likesCount - 1);
       await this.postRepository.save(post);
     }
-  
+
     return unlike;
   }
 
@@ -268,21 +340,37 @@ export class FeedService {
     return !!like;
   }
 
-  async createShare(createShareDto: CreateShareDto, postId: string, userId: string): Promise<PostShare> {
+  async createShare(
+    createShareDto: CreateShareDto,
+    postId: string,
+    userId: string,
+  ): Promise<PostShare> {
     const post = await this.postRepository.findOneBy({ id: postId });
     if (!post) {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
-    const share = this.shareRepository.create({ ...createShareDto, postId, userId });
+    const share = this.shareRepository.create({
+      ...createShareDto,
+      postId,
+      userId,
+    });
     return await this.shareRepository.save(share);
   }
 
-  async createReport(createReportDto: CreateReportDto, postId: string, userId: string): Promise<PostReport> {
+  async createReport(
+    createReportDto: CreateReportDto,
+    postId: string,
+    userId: string,
+  ): Promise<PostReport> {
     const post = await this.postRepository.findOneBy({ id: postId });
     if (!post) {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
-    const report = this.reportRepository.create({ ...createReportDto, postId, reporterId: userId });
+    const report = this.reportRepository.create({
+      ...createReportDto,
+      postId,
+      reporterId: userId,
+    });
     return await this.reportRepository.save(report);
   }
 

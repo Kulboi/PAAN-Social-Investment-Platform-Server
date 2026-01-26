@@ -20,7 +20,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { FeedService } from './feed.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PostResponseDto } from './dto/post-response.dto';
+import { PostResponseDataDto, PostResponseDto } from './dto/post-response.dto';
 import {
   CreateCommentDto,
   UpdateCommentDto,
@@ -63,10 +63,11 @@ export class FeedController {
   @ApiResponse({ 
     status: HttpStatus.OK,
     description: 'Feed posts retrieved successfully',
-    type: [PostResponseDto]
+    type: PostResponseDto
   })
-  async getFeed(@Query() reqQuery: FetchPostRequestDto): Promise<PostResponseDto[]> {
+  async getFeed(@Query() reqQuery: FetchPostRequestDto, @Request() req): Promise<PostResponseDto> {
     return this.feedService.getFeed({
+      user_id: req.user.id,
       page: reqQuery.page,
       limit: reqQuery.limit
     });
@@ -79,7 +80,7 @@ export class FeedController {
     description: 'Post retrieved successfully',
     type: PostResponseDto
   })
-  async getPost(@Param('id') id: string): Promise<PostResponseDto> {
+  async getPost(@Param('id') id: string): Promise<PostResponseDataDto> {
     return this.feedService.getPost(id);
   }
 

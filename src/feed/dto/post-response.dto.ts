@@ -41,7 +41,7 @@ export class PostMediaDto {
   height?: number;
 }
 
-export class PostResponseDto {
+export class PostResponseDataDto {
   @ApiProperty()
   id: string;
 
@@ -128,4 +128,26 @@ export class PostResponseDto {
 
   @ApiProperty({ type: [PostMediaDto] })
   media?: PostMediaDto[];
-} 
+}
+
+export class PostResponseMetaDto {
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  limit: number;
+
+  @ApiProperty()
+  totalPages: number;
+}
+
+export class PostResponseDto {
+  @ApiProperty({ type: [PostResponseDataDto] })
+  data: PostResponseDataDto[];
+
+  @ApiProperty({ type: PostResponseMetaDto })
+  meta: PostResponseMetaDto;
+}

@@ -1,9 +1,12 @@
-import { IsOptional } from 'class-validator';
+import { IsUUID, IsOptional } from 'class-validator';
 
 export class FetchPostRequestDto {
-  @IsOptional()
-  page?: string;
+  @IsUUID()
+  user_id: string;
 
   @IsOptional()
-  limit?: string;
+  page?: number;
+
+  @IsOptional()
+  limit?: number;
 }
