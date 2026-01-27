@@ -2,10 +2,16 @@ import { IsNotEmpty, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class FollowRequestDto {
+  @ApiProperty({
+    description: 'Unique identifier for the follower user',
+  })
   @IsNotEmpty() 
   @IsUUID() 
   follower_id: string;
 
+  @ApiProperty({
+    description: 'Unique identifier for the user to be followed',
+  })
   @IsNotEmpty()
   @IsUUID() 
   following_id: string;
