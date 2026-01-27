@@ -4,7 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+
+import { User } from '../../user/entities/user.entity';
 
 export enum FollowStatus {
   PENDING = 'PENDING',
@@ -17,11 +21,13 @@ export class Follow {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  follower_id: string;
+  @ManyToOne(() => User, (user) => user.following)
+  @JoinColumn({ name: 'follower_id' })
+  follower: User;
 
-  @Column()
-  following_id: string;
+  @ManyToOne(() => User, (user) => user.followers)
+  @JoinColumn({ name: 'following_id' })
+  following: User;
 
   @Column({
     default: FollowStatus.ACCEPTED,

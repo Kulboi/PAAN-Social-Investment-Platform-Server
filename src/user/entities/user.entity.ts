@@ -14,9 +14,10 @@ import { Wallet } from '../../wallet/entities/wallet.entity';
 import { Post } from '../../feed/entities/post.entity';
 import { PostLike } from '../../feed/entities/post-like.entity';
 import { PostComment } from '../../feed/entities/post-comment.entity';
-import { PostShare } from '../../feed/entities/post-share.entity';
-import { PostReport } from '../../feed/entities/post-report.entity';
-import { Notification } from '../../notifications/entities/notifications.entity';
+import { PostShare } from 'src/feed/entities/post-share.entity';
+import { PostReport } from 'src/feed/entities/post-report.entity';
+import { Notification } from 'src/notifications/entities/notifications.entity';
+import { Follow } from 'src/follow/entities/follow.entity';
 
 import { AuthTypes, GenderTypes, UserTypes } from '../user.enums';
 
@@ -129,4 +130,10 @@ export class User {
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
+
+  @OneToMany(() => Follow, (follow) => follow.follower_id)
+  following: Follow[];
+
+  @OneToMany(() => Follow, (follow) => follow.following_id)
+  followers: Follow[];
 }
