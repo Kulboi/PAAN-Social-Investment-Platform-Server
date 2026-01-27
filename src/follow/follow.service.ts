@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Not, In } from 'typeorm';
 
 import { Follow } from './entities/follow.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -8,6 +8,7 @@ import { User } from 'src/user/entities/user.entity';
 import { FollowRequestDto, FollowResponseDto, UnfollowResponseDto } from './dto/follow.dto';
 import { GetFollowersRequestDto, GetFollowersResponseDto } from './dto/getFollowers.dto';
 import { GetFollowingRequestDto, GetFollowingResponseDto } from './dto/getFollowing.dto';
+import { GetSuggestedFollowersResponseDto } from './dto/getSuggestedFollowers.dto';
 
 import { FollowStatus } from './entities/follow.entity';
 
@@ -123,6 +124,34 @@ export class FollowService {
         username: follow.following.username,
         email: follow.following.email,
         profile_image: follow.following.profile_image,
+        followed_at: follow.created_at,
+      })),
+    };
+  }
+
+  async getSuggestedFollowers(user_id: string): Promise<GetSuggestedFollowersResponseDto> {
+    const user = await this.userRepo.findOneBy({ id: user_id });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Prepare query builder for advanced filtering
+    let query = this.followRepo.createQueryBuilder('follow')
+      .leftJoinAndSelect('follow.follower', 'follower')
+      .where('follow.following = :userId', { userId: user_id });
+
+    query.andWhere('follower.interests && ARRAY[:...interests]', { interests: user.interests });
+
+    const followers = await query.getMany();
+
+    return {
+      suggestions: followers.map(follow => ({
+        id: follow.follower.id,
+        first_name: follow.follower.first_name,
+        last_name: follow.follower.last_name,
+        username: follow.follower.username,
+        email: follow.follower.email,
+        profile_image: follow.follower.profile_image,
         followed_at: follow.created_at,
       })),
     };

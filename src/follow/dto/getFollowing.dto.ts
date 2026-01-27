@@ -1,6 +1,5 @@
 import { IsNotEmpty, IsUUID, IsOptional } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
-import { UUID } from "typeorm/driver/mongodb/bson.typings";
 
   export class GetFollowingRequestDto {
   @ApiProperty({

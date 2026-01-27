@@ -8,6 +8,7 @@ import { FollowService } from './follow.service';
 import { FollowRequestDto, FollowResponseDto, UnfollowResponseDto } from './dto/follow.dto';
 import { GetFollowersResponseDto } from './dto/getFollowers.dto';
 import { GetFollowingResponseDto } from './dto/getFollowing.dto';
+import { GetSuggestedFollowersResponseDto } from './dto/getSuggestedFollowers.dto';
 
 @Controller('/api/v1/follow')
 @ApiTags('Follow')
@@ -61,8 +62,8 @@ export class FollowController {
     description: 'Get my following',
     type: GetFollowingResponseDto,
   })
-  getFollows(@Req() req): Promise<GetFollowingResponseDto> {
-    return this.followService.getFollowing({
+  async getFollows(@Req() req): Promise<GetFollowingResponseDto> {
+    return await this.followService.getFollowing({
       user_id: req.user.id,
       page: req.query.page || 1,
       limit: req.query.limit || 10,
@@ -78,11 +79,26 @@ export class FollowController {
     description: 'Get my followers',
     type: GetFollowersResponseDto,
   })
-  getFollowers(@Req() req): Promise<GetFollowersResponseDto> {
-    return this.followService.getFollowers({
+  async getFollowers(@Req() req): Promise<GetFollowersResponseDto> {
+    return await this.followService.getFollowers({
       user_id: req.user.id,
       page: req.query.page || 1,
       limit: req.query.limit || 10,
     });
+  }
+
+  @Get('suggestions')
+  @ApiOperation({ summary: 'Get suggested followers' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Get suggested followers',
+    type: GetSuggestedFollowersResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Not found: User not found',
+  })
+  async getSuggestedFollowers(@Req() req): Promise<GetSuggestedFollowersResponseDto> {
+    return await this.followService.getSuggestedFollowers(req.user.id);
   }
 }
