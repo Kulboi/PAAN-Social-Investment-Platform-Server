@@ -88,7 +88,7 @@ export class FollowService {
     // return followers;
   }
 
-  async getFollowing(dto: GetFollowDto) {
+  async getFollowing(dto) {
     // const following = await this.followRepo.find({
     //   where: {
     //     follower_id: dto.user_id,
