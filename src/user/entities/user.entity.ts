@@ -131,9 +131,9 @@ export class User {
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
 
-  @OneToMany(() => Follow, (follow) => follow.following)
+  @OneToMany(() => Follow, (follow) => follow.follower)
   following: Follow[];
 
-  @OneToMany(() => Follow, (follow) => follow.follower)
+  @OneToMany(() => Follow, (follow) => follow.following)
   followers: Follow[];
 }
