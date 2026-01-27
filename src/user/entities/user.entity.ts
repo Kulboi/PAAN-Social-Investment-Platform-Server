@@ -35,6 +35,9 @@ export class User {
   @Column()
   last_name: string;
 
+  @Column({ nullable: true })
+  username: string;
+
   @Column({ unique: true })
   email: string;
 

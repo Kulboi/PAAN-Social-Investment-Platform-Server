@@ -1,6 +1,8 @@
 import { IsNotEmpty, IsUUID, IsOptional } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
+import { User } from "src/user/entities/user.entity";
+
 export class GetFollowersRequestDto {
   @IsNotEmpty() 
   @IsUUID() 
@@ -24,11 +26,5 @@ export class GetFollowersResponseDto {
   @ApiProperty({
     description: 'List of followers',
   })
-  followers: Array<{
-    follower_id: string;
-    following_id: string;
-    status: string;
-    created_at: Date;
-    updated_at: Date;
-  }>;
+  followers: Array<Partial<User>>;
 }
