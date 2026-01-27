@@ -7,7 +7,7 @@ import { FollowService } from './follow.service';
 
 import { Follow } from './entities/follow.entity';
 
-import { FollowDto } from './dto/follow.dto';
+import { FollowRequestDto, FollowResponseDto, UnfollowResponseDto } from './dto/follow.dto';
 
 @Controller('/api/v1/follow')
 @ApiTags('Follow')
@@ -22,8 +22,19 @@ export class FollowController {
     description: 'User followed successfully', 
     type: Follow 
   })
-  async follow(@Body() payload: FollowDto): Promise<any> {
-    await this.followService.follow(payload);
+  async follow(@Body() payload: FollowRequestDto): Promise<FollowResponseDto> {
+    return await this.followService.follow(payload);
+  }
+
+  @Post('/unfollow')
+  @ApiOperation({ summary: 'Unfollow a user' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'User unfollowed successfully', 
+    type: UnfollowResponseDto 
+  })
+  async unFollow(@Body() payload: FollowRequestDto): Promise<UnfollowResponseDto> {
+    return await this.followService.unFollow(payload);
   }
 
   @Get('me')

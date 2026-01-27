@@ -1,29 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Follow } from './entities/follow.entity';
+import { User } from 'src/user/entities/user.entity';
 
-import { FollowRequestDto, FollowResponseDto } from './dto/follow.dto';
+import { FollowRequestDto, FollowResponseDto, UnfollowResponseDto } from './dto/follow.dto';
 import { GetFollowersRequestDto } from './dto/getFollowers.dto';
+import { FollowStatus } from './entities/follow.entity';
 
 @Injectable()
 export class FollowService {
   constructor(
     @InjectRepository(Follow)
     private readonly followRepo: Repository<Follow>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {}
 
   async follow(dto: FollowRequestDto): Promise<FollowResponseDto> {
-    const saved = await this.followRepo.save(dto);
+    // Check if the follow relationship already exists
+    const existingFollow = await this.followRepo.findOne({
+      where: {
+        follower: { id: dto.follower_id },
+        following: { id: dto.following_id },
+      },
+    });
+
+    // If it exists, throw conflict exception
+    if (existingFollow) {
+      throw new ConflictException('Follow relationship already exists');
+    }
+
+    // Get the follower and following users
+    const follower = await this.userRepo.findOneBy({ id: dto.follower_id });
+    const following = await this.userRepo.findOneBy({ id: dto.following_id });
+
+    if (!follower || !following) {
+      throw new NotFoundException('Follower or following user not found');
+    }
+
+    // Create the follow relationship
+    const followEntity = new Follow();
+    followEntity.follower = follower;
+    followEntity.following = following;
+    followEntity.status = FollowStatus.ACCEPTED;
+    const saved = await this.followRepo.save(followEntity);
 
     return {
-      follower_id: saved.follower_id,
-      following_id: saved.following_id,
+      follower_id: saved.follower.id,
+      following_id: saved.following.id,
       status: saved.status,
       created_at: saved.created_at,
       updated_at: saved.updated_at,
     };
+  }
+
+  async unFollow(dto: FollowRequestDto): Promise<UnfollowResponseDto> {
+    // Check if the follow relationship already exists
+    const existingFollow = await this.followRepo.findOne({
+      where: {
+        follower: { id: dto.follower_id },
+        following: { id: dto.following_id },
+      },
+    });
+
+    if (!existingFollow) {
+      throw new NotFoundException('Follow relationship not found');
+    }
+
+    // Delete the follow relationship
+    await this.followRepo.delete({
+      follower: { id: dto.follower_id },
+      following: { id: dto.following_id },
+    });
+
+    return { message: 'Successfully unfollowed the user' };
   }
 
   async getFollowers(dto: GetFollowersRequestDto) {

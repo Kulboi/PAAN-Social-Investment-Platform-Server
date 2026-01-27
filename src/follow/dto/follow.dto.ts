@@ -37,3 +37,10 @@ export class FollowResponseDto {
   })
   updated_at: Date;
 }
+
+export class UnfollowResponseDto {
+  @ApiProperty({
+    description: 'Message confirming the unfollow action',
+  })
+  message: string;
+}
