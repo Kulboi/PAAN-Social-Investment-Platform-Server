@@ -7,6 +7,8 @@ import { User } from 'src/user/entities/user.entity';
 
 import { FollowRequestDto, FollowResponseDto, UnfollowResponseDto } from './dto/follow.dto';
 import { GetFollowersRequestDto, GetFollowersResponseDto } from './dto/getFollowers.dto';
+import { GetFollowingRequestDto, GetFollowingResponseDto } from './dto/getFollowing.dto';
+
 import { FollowStatus } from './entities/follow.entity';
 
 @Injectable()
@@ -102,13 +104,27 @@ export class FollowService {
     };
   }
 
-  async getFollowing(dto) {
-    // const following = await this.followRepo.find({
-    //   where: {
-    //     follower_id: dto.user_id,
-    //   },
-    // })
-
-    // return following;
+  async getFollowing(dto: GetFollowingRequestDto): Promise<GetFollowingResponseDto> {
+    const following = await this.followRepo.find({
+      where: {
+        follower: { id: dto.user_id },
+      },
+      relations: ['following'],
+      skip: dto.page && dto.limit ? (dto.page - 1) * dto.limit : 0,
+      take: dto.limit || 10,
+    })
+    
+    return {
+      user_id: dto.user_id,
+      following: following.map(follow => ({
+        id: follow.following.id,
+        first_name: follow.following.first_name,
+        last_name: follow.following.last_name,
+        username: follow.following.username,
+        email: follow.following.email,
+        profile_image: follow.following.profile_image,
+        followed_at: follow.created_at,
+      })),
+    };
   }
 }
