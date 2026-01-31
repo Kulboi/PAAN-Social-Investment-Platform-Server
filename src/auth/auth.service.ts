@@ -193,6 +193,7 @@ export class AuthService {
 
     if (!user.is_verified) {
       await this.resendOTP(user.email);
+      throw new ForbiddenException('Email not verified. OTP resent to email');
     }
 
     return this.encryptUserTokensAndSaveHash(user);
