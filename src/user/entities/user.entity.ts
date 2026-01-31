@@ -48,6 +48,9 @@ export class User {
   profile_image: string;
 
   @Column({ nullable: true })
+  bio: string;
+
+  @Column({ nullable: true })
   phone: string;
 
   @Column({ nullable: true })

@@ -18,6 +18,12 @@ export class UserResponseDto {
   @ApiProperty({ description: 'user email' })
   email: string;
 
+  @ApiProperty({ description: 'user username' })
+  username: string;
+
+  @ApiProperty({ description: 'user bio' })
+  bio: string;
+
   @ApiProperty({ description: 'user address' })
   address: string;
 
