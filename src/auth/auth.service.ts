@@ -175,7 +175,6 @@ export class AuthService {
       data: {
         access_token: token,
         refresh_token: refreshToken,
-        isVerified: user.is_verified,
       },
     };
   }
