@@ -191,6 +191,10 @@ export class AuthService {
       }
     }
 
+    if (!user.is_verified) {
+      await this.resendOTP(user.email);
+    }
+
     return this.encryptUserTokensAndSaveHash(user);
   }
 
