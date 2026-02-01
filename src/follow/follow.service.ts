@@ -153,7 +153,7 @@ export class FollowService {
         email: follow.follower.email,
         profile_image: follow.follower.profile_image,
         followed_at: follow.created_at,
-        followerCount: follow.follower.followers ? follow.follower.followers.length : 0,
+        follower_count: follow.follower.followers ? follow.follower.followers.length : 0,
         is_following: follow.status === FollowStatus.ACCEPTED,
       })),
     };

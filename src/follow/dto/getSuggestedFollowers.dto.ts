@@ -12,7 +12,7 @@ export class GetSuggestedFollowersResponseDto {
     username: string;
     email: string;
     profile_image?: string;
-    followerCount: number;
+    follower_count: number;
     is_following: boolean;
   }>;
 }
