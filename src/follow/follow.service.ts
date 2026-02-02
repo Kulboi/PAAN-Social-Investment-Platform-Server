@@ -5,7 +5,7 @@ import { Repository, Not, In } from 'typeorm';
 import { Follow } from './entities/follow.entity';
 import { User } from 'src/user/entities/user.entity';
 
-import { FollowRequestDto, FollowResponseDto, UnfollowResponseDto } from './dto/follow.dto';
+import { FollowAccountDto, UnFollowAccountDto, FollowResponseDto, UnfollowResponseDto } from './dto/follow.dto';
 import { GetFollowersRequestDto, GetFollowersResponseDto } from './dto/getFollowers.dto';
 import { GetFollowingRequestDto, GetFollowingResponseDto } from './dto/getFollowing.dto';
 import { GetSuggestedFollowersResponseDto } from './dto/getSuggestedFollowers.dto';
@@ -21,7 +21,7 @@ export class FollowService {
     private readonly userRepo: Repository<User>,
   ) {}
 
-  async follow(dto: FollowRequestDto): Promise<FollowResponseDto> {
+  async follow(dto: FollowAccountDto): Promise<FollowResponseDto> {
     // Check if the follow relationship already exists
     const existingFollow = await this.followRepo.findOne({
       where: {
@@ -59,12 +59,12 @@ export class FollowService {
     };
   }
 
-  async unFollow(dto: FollowRequestDto): Promise<UnfollowResponseDto> {
+  async unFollow(dto: UnFollowAccountDto): Promise<UnfollowResponseDto> {
     // Check if the follow relationship already exists
     const existingFollow = await this.followRepo.findOne({
       where: {
-        follower: { id: dto.follower_id },
-        following: { id: dto.following_id },
+        follower: { id: dto.unfollower_id },
+        following: { id: dto.unfollowing_id },
       },
     });
 
@@ -74,8 +74,8 @@ export class FollowService {
 
     // Delete the follow relationship
     await this.followRepo.delete({
-      follower: { id: dto.follower_id },
-      following: { id: dto.following_id },
+      follower: { id: dto.unfollower_id },
+      following: { id: dto.unfollowing_id },
     });
 
     return { message: 'Successfully unfollowed the user' };

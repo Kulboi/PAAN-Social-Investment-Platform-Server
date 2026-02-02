@@ -5,7 +5,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 import { FollowService } from './follow.service';
 
-import { FollowRequestDto, FollowResponseDto, UnfollowResponseDto } from './dto/follow.dto';
+import { FollowsRequestDto, FollowResponseDto, UnfollowResponseDto } from './dto/follow.dto';
 import { GetFollowersResponseDto } from './dto/getFollowers.dto';
 import { GetFollowingResponseDto } from './dto/getFollowing.dto';
 import { GetSuggestedFollowersResponseDto } from './dto/getSuggestedFollowers.dto';
@@ -19,7 +19,7 @@ export class FollowController {
 
   @Post()
   @ApiOperation({ summary: 'Follow a user' })
-  @ApiBody({ type: FollowRequestDto })
+  @ApiBody({ type: FollowsRequestDto })
   @ApiResponse({ 
     status: HttpStatus.CREATED, 
     description: 'User followed successfully', 
@@ -33,13 +33,16 @@ export class FollowController {
     status: HttpStatus.NOT_FOUND,
     description: 'Not found: Follower or following user not found',
   })
-  async follow(@Body() payload: FollowRequestDto): Promise<FollowResponseDto> {
-    return await this.followService.follow(payload);
+  async follow(@Body() payload: FollowsRequestDto, @Req() req): Promise<FollowResponseDto> {
+    return await this.followService.follow({
+      follower_id: req.user.id,
+      following_id: payload.account_id,
+    });
   }
 
   @Post('/unfollow')
   @ApiOperation({ summary: 'Unfollow a user' })
-  @ApiBody({ type: FollowRequestDto })
+  @ApiBody({ type: FollowsRequestDto })
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'User unfollowed successfully', 
@@ -49,8 +52,11 @@ export class FollowController {
     status: HttpStatus.NOT_FOUND,
     description: 'Not found: Follow relationship not found',
   })
-  async unFollow(@Body() payload: FollowRequestDto): Promise<UnfollowResponseDto> {
-    return await this.followService.unFollow(payload);
+  async unFollow(@Body() payload: FollowsRequestDto, @Req() req): Promise<UnfollowResponseDto> {
+    return await this.followService.unFollow({
+      unfollower_id: req.user.id,
+      unfollowing_id: payload.account_id,
+    });
   }
 
   @Get('me')

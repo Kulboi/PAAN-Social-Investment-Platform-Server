@@ -1,20 +1,34 @@
 import { IsNotEmpty, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class FollowRequestDto {
+
+export class FollowsRequestDto {
   @ApiProperty({
-    description: 'Unique identifier for the follower user',
+    description: 'Unique identifier for the user to follow/unfollow',
   })
+  @IsNotEmpty()
+  @IsUUID()
+  account_id: string;
+}
+
+export class FollowAccountDto {
   @IsNotEmpty() 
   @IsUUID() 
   follower_id: string;
 
-  @ApiProperty({
-    description: 'Unique identifier for the user to be followed',
-  })
   @IsNotEmpty()
   @IsUUID() 
   following_id: string;
+}
+
+export class UnFollowAccountDto {
+  @IsNotEmpty() 
+  @IsUUID() 
+  unfollower_id: string;
+
+  @IsNotEmpty()
+  @IsUUID() 
+  unfollowing_id: string;
 }
 
 export class FollowResponseDto {
@@ -46,7 +60,7 @@ export class FollowResponseDto {
 
 export class UnfollowResponseDto {
   @ApiProperty({
-    description: 'Message confirming the unfollow action',
+    description: 'Message indicating the result of the unfollow operation',
   })
   message: string;
 }
