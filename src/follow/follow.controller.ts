@@ -59,7 +59,7 @@ export class FollowController {
     });
   }
 
-  @Get('me')
+  @Get('following')
   @ApiOperation({ summary: 'Get user following' })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
