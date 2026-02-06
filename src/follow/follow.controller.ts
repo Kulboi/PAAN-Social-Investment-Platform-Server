@@ -10,8 +10,8 @@ import { GetFollowersResponseDto } from './dto/getFollowers.dto';
 import { GetFollowingResponseDto } from './dto/getFollowing.dto';
 import { GetSuggestedFollowersResponseDto } from './dto/getSuggestedFollowers.dto';
 
-@Controller('/api/v1/follow')
-@ApiTags('Follow')
+@Controller('/api/v1/follows')
+@ApiTags('Follows')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 export class FollowController {
