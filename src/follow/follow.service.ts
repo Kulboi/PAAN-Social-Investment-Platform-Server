@@ -145,7 +145,7 @@ export class FollowService {
     const followers = await query.getMany();
 
     return {
-      suggestions: followers.map(follow => ({
+      suggestions: followers ? followers.map(follow => ({
         id: follow.follower.id,
         first_name: follow.follower.first_name,
         last_name: follow.follower.last_name,
@@ -155,7 +155,7 @@ export class FollowService {
         followed_at: follow.created_at,
         follower_count: follow.follower.followers ? follow.follower.followers.length : 0,
         is_following: follow.status === FollowStatus.ACCEPTED,
-      })),
+      })) : [],
     };
   }
 }
