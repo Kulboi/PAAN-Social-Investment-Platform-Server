@@ -134,6 +134,10 @@ export class FollowService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    
+    if(user.interests === null || user.interests.length === 0) {
+      return { suggestions: [] };
+    }
 
     // Prepare query builder for advanced filtering
     let query = this.followRepo.createQueryBuilder('follow')
