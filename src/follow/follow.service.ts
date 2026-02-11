@@ -130,36 +130,56 @@ export class FollowService {
   }
 
   async getSuggestedFollowers(user_id: string): Promise<GetSuggestedFollowersResponseDto> {
-    const user = await this.userRepo.findOneBy({ id: user_id });
+    const user = await this.userRepo.findOne({
+      where: { id: user_id },
+      select: ['id', 'interests'],
+    });
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    
-    if(user.interests === null || user.interests.length === 0) {
+    if (!user.interests || user.interests.length === 0) {
       return { suggestions: [] };
     }
 
-    // Prepare query builder for advanced filtering
-    let query = this.followRepo.createQueryBuilder('follow')
-      .leftJoinAndSelect('follow.follower', 'follower')
-      .where('follow.following = :userId', { userId: user_id });
+    // Get IDs of users already followed by this user
+    const following = await this.followRepo.find({
+      where: { follower: { id: user_id } },
+      relations: ['following'],
+    });
+    const followingIds = following.map(f => f.following.id);
 
-    query.andWhere('follower.interests && ARRAY[:...interests]', { interests: user.interests });
+    // Find users with similar interests, not already followed, and not the user themselves
+    const qb = this.userRepo.createQueryBuilder('user')
+      .where('user.id != :userId', { userId: user_id })
+      .andWhere('user.interests && ARRAY[:...interests]', { interests: user.interests });
 
-    const followers = await query.getMany();
+    if (followingIds.length > 0) {
+      qb.andWhere('user.id NOT IN (:...followingIds)', { followingIds });
+    }
 
+    const similarUsers = await qb.getMany();
+
+    // Optionally, sort by number of shared interests
+    const suggestions = similarUsers.map(u => {
+      const sharedInterests = u.interests.filter(i => user.interests.includes(i));
+      return {
+        id: u.id,
+        first_name: u.first_name,
+        last_name: u.last_name,
+        username: u.username,
+        email: u.email,
+        profile_image: u.profile_image,
+        follower_count: Array.isArray(u.followers) ? u.followers.length : 0,
+        is_following: false,
+        sharedInterestsCount: sharedInterests.length,
+      };
+    });
+    // Sort by sharedInterestsCount descending
+    suggestions.sort((a, b) => b.sharedInterestsCount - a.sharedInterestsCount);
+
+    // Remove sharedInterestsCount from response
     return {
-      suggestions: followers ? followers.map(follow => ({
-        id: follow.follower.id,
-        first_name: follow.follower.first_name,
-        last_name: follow.follower.last_name,
-        username: follow.follower.username,
-        email: follow.follower.email,
-        profile_image: follow.follower.profile_image,
-        followed_at: follow.created_at,
-        follower_count: follow.follower.followers ? follow.follower.followers.length : 0,
-        is_following: follow.status === FollowStatus.ACCEPTED,
-      })) : [],
+      suggestions: suggestions.map(({ sharedInterestsCount, ...rest }) => rest),
     };
   }
 }
