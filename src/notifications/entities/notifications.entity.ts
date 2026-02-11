@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 
-import { User } from '../../user/entities/user.entity';
+import { User } from 'src/user/entities/user.entity';
 
-import { NotificationTypes } from '../notifications.enum';
+import { NotificationTypes } from 'src/notifications/notifications.enum';
 
 @Entity({ name: 'notifications' })
 export class Notification {
@@ -29,7 +29,7 @@ export class Notification {
   })
   meta: object;
 
-  @ManyToOne(() => User, (user) => user.notifications)
+  @ManyToOne(() => User, (user) => user.notifications, { onDelete: 'CASCADE' })
   user: User;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

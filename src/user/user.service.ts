@@ -48,6 +48,7 @@ export class UserService {
         bvn: user?.credentials?.bvn,
       },
       role: user.role as UserTypes,
+      interests: user.interests,
     };
   }
 
@@ -82,6 +83,7 @@ export class UserService {
           nin: user?.credentials?.nin,
           bvn: user?.credentials?.bvn,
         },
+        interests: user.interests,
       },
     };
   }

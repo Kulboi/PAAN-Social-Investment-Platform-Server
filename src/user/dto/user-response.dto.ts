@@ -59,4 +59,7 @@ export class UserResponseDto {
 
   @ApiProperty({ description: 'user role' })
   role: UserTypes;
+
+  @ApiProperty({ description: 'user interests'})
+  interests: string[];
 }
