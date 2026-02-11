@@ -176,6 +176,7 @@ export class AuthService {
         access_token: token,
         refresh_token: refreshToken,
       },
+      message: 'User logged in successfully',
     };
   }
 

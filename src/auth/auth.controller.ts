@@ -7,7 +7,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
-import { RegisterDto, LoginDto, GoogleAuthDTO, ForgotPasswordDto, ResetPasswordDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, LoginResponseDto, GoogleAuthDTO, ForgotPasswordDto, ResetPasswordDto } from './dto/auth.dto';
 import { ResendOTPDto, UserVerificationDto } from './dto/user-verification-dto';
 
 @ApiTags('Authentication')
@@ -72,8 +72,8 @@ export class AuthController {
     status: 200, 
     type: Object,
   })
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  async login(@Body() dto: LoginDto): Promise<LoginResponseDto> {
+    return await this.authService.login(dto);
   }
 
   @Post('refresh-token')
@@ -83,9 +83,9 @@ export class AuthController {
     status: 200, 
     type: Object,
   })
-  refreshToken(@Req() req) {
+  async refreshToken(@Req() req) {
     const { id, refreshToken } = req.user;
-    return this.authService.refreshTokens({ userId: id, refreshToken });
+    return await this.authService.refreshTokens({ userId: id, refreshToken });
   }
 
   @Post('forgot-password')
@@ -93,8 +93,8 @@ export class AuthController {
   @ApiResponse({ 
     status: 200, description: 'Reset token sent to email', 
   })
-  forgotPassword(@Body() dto: ForgotPasswordDto) {
-    return this.authService.forgotPassword(dto);
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return await this.authService.forgotPassword(dto);
   }
 
   @Post('reset-password')
@@ -102,8 +102,8 @@ export class AuthController {
   @ApiResponse({ 
     status: 200, description: 'Password reset successful', 
   })
-  resetPassword(@Body() dto: ResetPasswordDto) {
-    return this.authService.resetPassword(dto);
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return await this.authService.resetPassword(dto);
   }
 
   @Post('logout')
@@ -113,7 +113,7 @@ export class AuthController {
   @ApiResponse({ 
     status: 200, description: 'Logout successful', 
   })
-  logout(@Req() req) {
-    return this.authService.logout(req.user.id, req.user.token);
+  async logout(@Req() req) {
+    return await this.authService.logout(req.user.id, req.user.token);
   }
 }
